@@ -164,7 +164,7 @@ def extract_duration(text: str) -> Optional[str]:
     clean_input = normalize_text(text)
 
     # Number + unit (days, weeks, months, hours, din, hafte, mahine)
-    pattern = r'(\b\d+\s*(?:days?|weeks?|months?|hours?|hrs?|din|hafte|mahine)\b)'
+    pattern = r'(\b\d+\s*(?:days?|weeks?|months?|hours?|hrs?|din|hafte|mahine)\b|\d+\s*(?:ದಿನ|ದಿನಗಳು|ವಾರ|ವಾರಗಳು|ತಿಂಗಳು|ತಿಂಗಳುಗಳು|ಗಂಟೆ))'
     match = re.search(pattern, clean_input, re.IGNORECASE)
     if match:
         dur = match.group(1)
@@ -172,6 +172,10 @@ def extract_duration(text: str) -> Optional[str]:
         dur = re.sub(r'\bdin\b', 'days', dur)
         dur = re.sub(r'\bhafte\b', 'weeks', dur)
         dur = re.sub(r'\bmahine\b', 'months', dur)
+        dur = re.sub(r'ದಿನಗಳು?', 'days', dur)
+        dur = re.sub(r'ವಾರಗಳು?', 'weeks', dur)
+        dur = re.sub(r'ತಿಂಗಳುಗಳು?', 'months', dur)
+        dur = re.sub(r'ಗಂಟೆ', 'hours', dur)
         return dur
 
     # Single words
