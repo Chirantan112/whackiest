@@ -29,6 +29,8 @@ def test_worker_page():
     html = response.text
     assert "TASKORA" in html
     assert "micBtn" in html
+    assert 'data-lang="kn"' in html
+    assert "getSpeechLocale(TASKORA.state.language)" in html
     assert "transcriptInput" in html
     assert "searchBtn" in html
     assert "jobsList" in html
@@ -42,6 +44,8 @@ def test_employer_page():
     html = response.text
     assert "TASKORA" in html
     assert "empMicBtn" in html
+    assert 'data-lang="kn"' in html
+    assert "getSpeechLocale(TASKORA.state.language)" in html
     assert "empTranscript" in html
     assert "jobPostForm" in html
     assert "formSkill" in html
@@ -58,3 +62,5 @@ def test_static_assets():
     js_resp = client.get("/static/app.js")
     assert js_resp.status_code == 200
     assert "TASKORA" in js_resp.text
+    assert "kn-IN" in js_resp.text
+    assert "state.recognition = recognition" in js_resp.text
