@@ -114,8 +114,14 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
   return recognition;
 }
 
+// Map the selected UI language to the browser's speech recognition locale.
+function getSpeechLocale(lang) {
+  return ({ en: "en-IN", hi: "hi-IN", kn: "kn-IN" })[lang] || "en-IN";
+}
+
 // Language Switcher
 function setLanguage(lang) {
+  if (!Object.prototype.hasOwnProperty.call(TRANSLATIONS, lang)) lang = "en";
   state.language = lang;
   document.documentElement.lang = lang;
   document.querySelectorAll(".lang-btn").forEach(btn => {
@@ -240,6 +246,7 @@ window.TASKORA = {
   state,
   TRANSLATIONS,
   initSpeechRecognition,
+  getSpeechLocale,
   setLanguage,
   speakText,
   showToast,
