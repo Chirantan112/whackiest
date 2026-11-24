@@ -19,7 +19,7 @@ AUDIO_CACHE_DIR = BASE_DIR / "audio_cache"
 AUDIO_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
 DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"  # Rachel
-DEFAULT_MODEL_ID = "eleven_multilingual_v2
+DEFAULT_MODEL_ID = "eleven_multilingual_v2"
 
 
 def get_audio_hash(
