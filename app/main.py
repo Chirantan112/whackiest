@@ -26,7 +26,7 @@ from app.db import (
 from app.extract import extract_job_details, SKILL_DICTIONARY
 from app.matcher import match_jobs, get_area_coordinates
 from app.voice import generate_speech
-from app.auth import init_auth_db, request_otp, verify_otp, current_user, require_role, logout
+from app.auth import init_auth_db, signup, login, current_user, require_role, logout
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 WEB_DIR = BASE_DIR / "web"
@@ -128,34 +128,49 @@ async def read_employer_page():
 
 
 # ---------------------------------------------------------------------------
-# Email OTP Authentication
+# Password Authentication
 # ---------------------------------------------------------------------------
-class OTPRequest(BaseModel):
+class SignupRequest(BaseModel):
     email: str = Field(..., min_length=5, max_length=254)
+    password: str = Field(..., min_length=8, max_length=128)
     display_name: str = Field(..., min_length=2, max_length=80)
     role: str = Field(...)
 
-class OTPVerifyRequest(BaseModel):
+
+class LoginRequest(BaseModel):
     email: str = Field(..., min_length=5, max_length=254)
-    code: str = Field(..., min_length=6, max_length=6)
+    password: str = Field(..., min_length=1, max_length=128)
 
-@app.post("/api/auth/request-otp", tags=["Authentication"])
-async def send_otp(req: OTPRequest):
-    return request_otp(req.email, req.display_name, req.role)
 
-@app.post("/api/auth/verify-otp", tags=["Authentication"])
-async def verify_otp_code(req: OTPVerifyRequest, response: Response):
-    token, account = verify_otp(req.email, req.code)
-    response.set_cookie("taskora_session", token, httponly=True,
-        secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1","true","yes"},
-        samesite="lax", max_age=30*24*60*60, path="/")
-    return {"message": "Email verified.", "user": account}
+def set_session_cookie(response: Response, token: str):
+    response.set_cookie(
+        key="taskora_session", value=token, httponly=True,
+        secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1", "true", "yes"},
+        samesite="lax", max_age=30 * 24 * 60 * 60, path="/"
+    )
+
+
+@app.post("/api/auth/signup", tags=["Authentication"])
+async def create_account(req: SignupRequest, response: Response):
+    token, account = signup(req.email, req.password, req.display_name, req.role)
+    set_session_cookie(response, token)
+    return {"message": "Account created.", "user": account}
+
+
+@app.post("/api/auth/login", tags=["Authentication"])
+async def login_account(req: LoginRequest, response: Response):
+    token, account = login(req.email, req.password)
+    set_session_cookie(response, token)
+    return {"message": "Logged in.", "user": account}
+
 
 @app.get("/api/auth/me", tags=["Authentication"])
 async def who_am_i(request: Request):
     account = current_user(request)
-    if not account: raise HTTPException(status_code=401, detail="Not signed in.")
+    if not account:
+        raise HTTPException(status_code=401, detail="Not logged in.")
     return {"user": account}
+
 
 @app.post("/api/auth/logout", tags=["Authentication"])
 async def sign_out(request: Request, response: Response):

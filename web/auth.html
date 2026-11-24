@@ -1,1 +1,35 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TASKORA - Sign in</title><link rel="stylesheet" href="/static/style.css"><style>.auth-card{max-width:470px;margin:2.5rem auto;background:#fff;border:1px solid var(--border);border-radius:18px;padding:2rem;box-shadow:var(--shadow-md)}.auth-card h1{color:var(--primary);margin-bottom:.4rem}.auth-card p{color:var(--text-muted);margin-bottom:1.2rem}.auth-field{margin:1rem 0}.auth-field label{display:block;font-weight:700;margin-bottom:.35rem}.auth-field input,.auth-field select{width:100%;padding:.8rem;border:1px solid var(--border);border-radius:10px;font:inherit}.auth-message{min-height:1.5rem;margin-top:.8rem;color:var(--danger)}.auth-message.success{color:#047857}#verifyForm[hidden]{display:none}</style></head><body><header class="header"><div class="header-container"><a href="/" class="brand"><div class="brand-logo">T</div><span class="brand-title">TASKORA</span></a><a href="/" class="btn-sm" style="background:#e0f2fe;color:#0369a1;text-decoration:none">Home</a></div></header><main class="main-content"><section class="auth-card"><h1>Sign up or log in</h1><p>Enter your email to receive a one-time verification code. No password required.</p><form id="requestForm"><div class="auth-field"><label for="displayName">Your name</label><input id="displayName" minlength="2" maxlength="80" autocomplete="name" required></div><div class="auth-field"><label for="email">Email address</label><input id="email" type="email" autocomplete="email" required></div><div class="auth-field"><label for="role">I am here as</label><select id="role"><option value="worker">Worker — looking for work</option><option value="employer">Employer — posting jobs</option></select></div><button class="primary-btn" id="sendCode">Send verification code</button></form><form id="verifyForm" hidden><div class="auth-field"><label for="otp">6-digit email code</label><input id="otp" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></div><button class="primary-btn" id="verifyCode">Verify and continue</button><div style="display:flex;justify-content:space-between;margin-top:1rem"><a href="#" id="changeEmail">Change email</a><button type="button" class="btn-sm" id="resendCode">Resend code</button></div></form><div id="authMessage" class="auth-message" role="status" aria-live="polite"></div><p style="font-size:.82rem;margin-top:1rem">Your account is created only after your email is verified.</p></section></main><script src="/static/auth.js"></script></body></html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TASKORA - Sign up or log in</title><link rel="stylesheet" href="/static/style.css">
+<style>
+.auth-card{max-width:470px;margin:2.5rem auto;background:#fff;border:1px solid var(--border);border-radius:18px;padding:2rem;box-shadow:var(--shadow-md)}
+.auth-card h1{color:var(--primary);margin-bottom:.4rem}.auth-card p{color:var(--text-muted);margin-bottom:1.2rem}
+.auth-tabs{display:flex;gap:.5rem;margin:1.2rem 0}.auth-tabs button{flex:1;padding:.7rem;border:1px solid var(--border);border-radius:9px;background:#f8fafc;font:inherit;cursor:pointer}
+.auth-tabs button.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.auth-field{margin:1rem 0}.auth-field label{display:block;font-weight:700;margin-bottom:.35rem}
+.auth-field input,.auth-field select{width:100%;padding:.8rem;border:1px solid var(--border);border-radius:10px;font:inherit}
+.auth-message{min-height:1.5rem;margin-top:.8rem;color:var(--danger)}.auth-message.success{color:#047857}
+[hidden]{display:none!important}
+</style></head>
+<body>
+<header class="header"><div class="header-container"><a href="/" class="brand"><div class="brand-logo">T</div><span class="brand-title">TASKORA</span></a><a href="/" class="btn-sm" style="background:#e0f2fe;color:#0369a1;text-decoration:none">Home</a></div></header>
+<main class="main-content"><section class="auth-card">
+<h1>Welcome to TASKORA</h1><p>Create an account or log in to continue.</p>
+<div class="auth-tabs" role="tablist" aria-label="Account access"><button type="button" id="signupTab" class="active" role="tab" aria-selected="true">Sign up</button><button type="button" id="loginTab" role="tab" aria-selected="false">Log in</button></div>
+<form id="signupForm">
+<div class="auth-field"><label for="signupName">Your name</label><input id="signupName" minlength="2" maxlength="80" autocomplete="name" required></div>
+<div class="auth-field"><label for="signupEmail">Email address</label><input id="signupEmail" type="email" maxlength="254" autocomplete="email" required></div>
+<div class="auth-field"><label for="signupPassword">Password</label><input id="signupPassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" required></div>
+<div class="auth-field"><label for="signupRole">I am here as</label><select id="signupRole"><option value="worker">Worker — looking for work</option><option value="employer">Employer — posting jobs</option></select></div>
+<button class="primary-btn" id="signupButton" type="submit">Create account</button>
+</form>
+<form id="loginForm" hidden>
+<div class="auth-field"><label for="loginEmail">Email address</label><input id="loginEmail" type="email" maxlength="254" autocomplete="email" required></div>
+<div class="auth-field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" maxlength="128" autocomplete="current-password" required></div>
+<button class="primary-btn" id="loginButton" type="submit">Log in</button>
+</form>
+<div id="authMessage" class="auth-message" role="status" aria-live="polite"></div>
+<p style="font-size:.82rem;margin-top:1rem">Password must be at least 8 characters long.</p>
+</section></main><script src="/static/auth.js"></script></body></html>
