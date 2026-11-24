@@ -20,6 +20,7 @@
         <div class="lang-toggle" role="group" aria-label="Language selector">
           <button class="lang-btn active" data-lang="en" onclick="setEmployerLanguage('en')">EN</button>
           <button class="lang-btn" data-lang="hi" onclick="setEmployerLanguage('hi')">हिंदी</button>
+          <button class="lang-btn" data-lang="kn" onclick="setEmployerLanguage('kn')">ಕನ್ನಡ</button>
         </div>
         <a href="/worker" class="btn-sm" style="background:#e0f2fe; color:#0369a1; text-decoration:none;">Find Work</a>
       </div>
@@ -197,10 +198,16 @@
         TASKORA.showToast("Speech recognition not supported in this browser. Please type below.");
         return;
       }
+      if (TASKORA.state.isListening) {
+        empRecognition.stop();
+        return;
+      }
       try {
+        empRecognition.lang = TASKORA.getSpeechLocale(TASKORA.state.language);
         empRecognition.start();
       } catch (err) {
-        empRecognition.stop();
+        console.error("Could not start speech recognition:", err);
+        TASKORA.showToast(TASKORA.TRANSLATIONS[TASKORA.state.language].micGeneric);
       }
     });
 
@@ -208,9 +215,10 @@
     function setEmployerLanguage(lang) {
       TASKORA.setLanguage(lang);
       const isHi = lang === "hi";
-      document.getElementById("empPanelTitle").textContent = isHi ? "बताएं आपको किस कारीगर की जरूरत है" : "Say what worker you need";
-      document.getElementById("empPanelSubtitle").textContent = isHi ? 'उदाहरण: "मुझे वाइटफील्ड में 3 दिन के लिए प्लंबर चाहिए। 800 रुपये रोज दूंगा।"' : 'Example: "I need a plumber in Whitefield for 3 days. Payment is 800 rupees per day."';
-      empTranscript.placeholder = isHi ? "बोलकर या लिखकर बताएं आपको कैसा काम कराना है..." : "Speak or describe your job requirement in your own words...";
+      const isKn = lang === "kn";
+      document.getElementById("empPanelTitle").textContent = isKn ? "ನಿಮಗೆ ಯಾವ ಕೆಲಸಗಾರ ಬೇಕು ಎಂದು ಹೇಳಿ" : isHi ? "बताएं आपको किस कारीगर की जरूरत है" : "Say what worker you need";
+      document.getElementById("empPanelSubtitle").textContent = isKn ? 'ಉದಾಹರಣೆ: "ವೈಟ್‌ಫೀಲ್ಡ್‌ನಲ್ಲಿ 3 ದಿನಗಳ ಕಾಲ ಪ್ಲಂಬರ್ ಬೇಕು. ದಿನಕ್ಕೆ 800 ರೂಪಾಯಿ ಕೊಡುತ್ತೇನೆ."' : isHi ? 'उदाहरण: "मुझे वाइटफील्ड में 3 दिन के लिए प्लंबर चाहिए। 800 रुपये रोज दूंगा।"' : 'Example: "I need a plumber in Whitefield for 3 days. Payment is 800 rupees per day."';
+      empTranscript.placeholder = isKn ? "ನಿಮ್ಮ ಕೆಲಸದ ಅಗತ್ಯವನ್ನು ಮಾತನಾಡಿ ಅಥವಾ ಟೈಪ್ ಮಾಡಿ..." : isHi ? "बोलकर या लिखकर बताएं आपको कैसा काम कराना है..." : "Speak or describe your job requirement in your own words...";
     }
 
     // Extract Details from text
