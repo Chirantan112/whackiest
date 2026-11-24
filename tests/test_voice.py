@@ -1,81 +1,108 @@
 """
 Unit tests for TASKORA Voice & Audio Module (app/voice.py).
-Tests hashing, disk caching, graceful fallback, and empty input handling.
+Covers cache keys, disk cache retrieval, and safe browser fallback behaviour.
 """
 
-import os
-from pathlib import Path
-import pytest
+
+import requests
+
 from app.voice import (
-    get_audio_hash,
-    generate_speech,
     AUDIO_CACHE_DIR,
+    DEFAULT_MODEL_ID,
     DEFAULT_VOICE_ID,
-    DEFAULT_MODEL_ID
+    generate_speech,
+    get_audio_hash,
 )
 
 
-def test_audio_hash_deterministic():
-    """Verify SHA-256 hash is deterministic for same text, voice, and model."""
+def test_audio_hash_deterministic_and_language_aware():
+    """Cache keys are stable but differ when the requested language differs."""
     h1 = get_audio_hash("Hello world", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID)
-    h2 = get_audio_hash("Hello world", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID)
+    h2 = get_audio_hash("Hello world", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "en")
     assert h1 == h2
     assert len(h1) == 64
 
-    # Different text should produce different hash
-    h3 = get_audio_hash("Hello Bengaluru", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID)
-    assert h1 != h3
+    assert h1 != get_audio_hash(
+        "Hello Bengaluru", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID
+    )
+    assert h1 != get_audio_hash(
+        "Hello world", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "hi"
+    )
 
 
-def test_audio_hash_separates_languages():
-    """The same text must not reuse audio generated for a different language."""
+def test_audio_hash_separates_english_hindi_and_kannada():
+    """The same text must not reuse cached audio across supported languages."""
     english = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "en")
-    kannada = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "kn")
     hindi = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "hi")
-    assert len({english, kannada, hindi}) == 3
+    kannada = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "kn")
+    assert len({english, hindi, kannada}) == 3
 
 
 def test_empty_text_handling():
-    """Verify empty or whitespace text fails gracefully without crash."""
-    res = generate_speech("")
-    assert res["success"] is False
-    assert res["fallback"] is True
-    assert res["audio_url"] is None
+    """Empty or whitespace-only text fails gracefully."""
+    for text in ("", "   "):
+        result = generate_speech(text)
+        assert result["success"] is False
+        assert result["fallback"] is True
+        assert result["audio_url"] is None
 
 
-def test_fallback_when_no_api_key():
-    """Verify fallback=True and reason is provided when ElevenLabs API key is placeholder."""
-    # Ensure no valid key is present in environment for this test
-    original_key = os.environ.get("ELEVENLABS_API_KEY")
-    os.environ["ELEVENLABS_API_KEY"] = ""
+def test_fallback_when_no_api_key(monkeypatch):
+    """A missing API key requests browser speech synthesis."""
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "")
+    result = generate_speech("Electrician in Hebbal", language="en")
 
-    try:
-        res = generate_speech("Electrician in Hebbal", language="en")
-        assert res["success"] is False
-        assert res["fallback"] is True
-        assert "not configured" in res["reason"].lower()
-    finally:
-        if original_key is not None:
-            os.environ["ELEVENLABS_API_KEY"] = original_key
+    assert result["success"] is False
+    assert result["fallback"] is True
+    assert "not configured" in result["reason"].lower()
 
 
-def test_disk_cache_retrieval(tmp_path):
-    """Verify that existing cache files on disk are served directly without external requests."""
+def test_disk_cache_retrieval():
+    """Existing cache files are served without making an external request."""
     test_text = "Disk cache test sample text"
-    cache_hash = get_audio_hash(test_text, DEFAULT_VOICE_ID, DEFAULT_MODEL_ID)
+    cache_hash = get_audio_hash(
+        test_text, DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "en"
+    )
     cached_file = AUDIO_CACHE_DIR / f"{cache_hash}.mp3"
-
-    # Simulate existing audio file in cache
-    with open(cached_file, "wb") as f:
-        f.write(b"MOCK_MP3_DATA_FOR_TESTING")
+    cached_file.write_bytes(b"MOCK_MP3_DATA_FOR_TESTING")
 
     try:
-        res = generate_speech(test_text)
-        assert res["success"] is True
-        assert res["cached"] is True
-        assert res["fallback"] is False
-        assert res["audio_url"] == f"/audio_cache/{cache_hash}.mp3"
+        result = generate_speech(test_text, language="en")
+        assert result["success"] is True
+        assert result["cached"] is True
+        assert result["fallback"] is False
+        assert result["audio_url"] == f"/audio_cache/{cache_hash}.mp3"
     finally:
-        # Clean up mock file
-        if cached_file.exists():
-            cached_file.unlink()
+        cached_file.unlink(missing_ok=True)
+
+
+def test_network_error_uses_safe_fallback(monkeypatch):
+    """Network exceptions do not leak internal exception details to clients."""
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+
+    def raise_connection_error(*args, **kwargs):
+        raise requests.ConnectionError("private request details")
+
+    monkeypatch.setattr("app.voice.requests.post", raise_connection_error)
+    result = generate_speech("Test network fallback")
+
+    assert result["success"] is False
+    assert result["fallback"] is True
+    assert "temporarily unavailable" in result["reason"].lower()
+    assert "private request details" not in result["reason"]
+
+
+def test_api_error_uses_safe_fallback(monkeypatch):
+    """Non-success API responses return a generic, non-sensitive reason."""
+    monkeypatch.setenv("ELEVENLABS_API_KEY", "test-key")
+
+    class FakeResponse:
+        status_code = 401
+
+    monkeypatch.setattr("app.voice.requests.post", lambda *args, **kwargs: FakeResponse())
+    result = generate_speech("Test API fallback")
+
+    assert result["success"] is False
+    assert result["fallback"] is True
+    assert "could not generate audio" in result["reason"].lower()
+    assert "401" not in result["reason"]
