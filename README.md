@@ -242,7 +242,12 @@ Open your browser at:
 |---|---|---|
 | `GET` | `/` | Serves Landing Page (`web/index.html`) |
 | `GET` | `/worker` | Serves Worker Page (`web/worker.html`) |
-| `GET` | `/employer` | Serves Employer Page (`web/employer.html`) |\n| `GET` | `/auth` | Email signup/login page |\n| `POST` | `/api/auth/request-otp` | Send email verification code |\n| `POST` | `/api/auth/verify-otp` | Verify code and create session |\n| `GET` | `/api/auth/me` | Current signed-in account |\n| `POST` | `/api/auth/logout` | Revoke current session |
+| `GET` | `/employer` | Serves Employer Page (`web/employer.html`) |
+| `GET` | `/auth` | Email signup/login page |
+| `POST` | `/api/auth/request-otp` | Send email verification code |
+| `POST` | `/api/auth/verify-otp` | Verify code and create session |
+| `GET` | `/api/auth/me` | Current signed-in account |
+| `POST` | `/api/auth/logout` | Revoke current session |
 | `GET` | `/api/health` | Health status and open jobs count |
 | `GET` | `/api/areas` | List of supported localities and approximate coordinates |
 | `GET` | `/api/skills` | Supported skills and dictionary aliases |
