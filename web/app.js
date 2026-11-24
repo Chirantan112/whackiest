@@ -6,7 +6,7 @@
 
 // Global State
 const state = {
-  language: "en", // "en" or "hi"
+  language: "en", // "en", "hi", or "kn"
   recognition: null,
   isListening: false,
   areas: [],
@@ -28,7 +28,11 @@ const TRANSLATIONS = {
     reportBtn: "Report Job",
     postJobBtn: "Confirm & Post Job",
     extractBtn: "Extract Details",
-    demoDisclaimer: "Demo data. Employer verification is not implemented yet."
+    demoDisclaimer: "Demo data. Employer verification is not implemented yet.",
+    micPermission: "Allow microphone access in your browser, then try again.",
+    micNetwork: "Speech service is unavailable. Check your internet connection.",
+    micBusy: "Microphone is already active. Please wait a moment.",
+    micGeneric: "Could not start the microphone. Please type your request."
   },
   hi: {
     tagline: "अपना हुनर बोलें। पास में काम पाएं।",
@@ -42,7 +46,29 @@ const TRANSLATIONS = {
     reportBtn: "गलत काम की शिकायत करें",
     postJobBtn: "पुष्टि करें और काम पोस्ट करें",
     extractBtn: "विवरण निकालें",
-    demoDisclaimer: "डेमो डेटा। नियोक्ता सत्यापन अभी लागू नहीं किया गया है।"
+    demoDisclaimer: "डेमो डेटा। नियोक्ता सत्यापन अभी लागू नहीं किया गया है।",
+    micPermission: "ब्राउज़र में माइक्रोफ़ोन की अनुमति दें और फिर कोशिश करें।",
+    micNetwork: "आवाज़ सेवा उपलब्ध नहीं है। इंटरनेट कनेक्शन जाँचें।",
+    micBusy: "माइक्रोफ़ोन पहले से सक्रिय है। कृपया प्रतीक्षा करें।",
+    micGeneric: "माइक्रोफ़ोन शुरू नहीं हो सका। कृपया लिखें।"
+  },
+  kn: {
+    tagline: "ನಿಮ್ಮ ಕೌಶಲ್ಯ ಹೇಳಿ. ಹತ್ತಿರದಲ್ಲೇ ಕೆಲಸ ಹುಡುಕಿ.",
+    micIdle: "ಮಾತನಾಡಲು ಮೈಕ್ ಒತ್ತಿ",
+    micListening: "ಕೇಳುತ್ತಿದ್ದೇವೆ... ಈಗ ಮಾತನಾಡಿ",
+    micError: "ಮಾತನ್ನು ಗುರುತಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಕೆಳಗೆ ಟೈಪ್ ಮಾಡಿ.",
+    micNotSupported: "ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ಗುರುತಿಸುವಿಕೆ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಟೈಪ್ ಮಾಡಿ.",
+    searchBtn: "ಹತ್ತಿರದ ಕೆಲಸ ಹುಡುಕಿ",
+    callBtn: "ಉದ್ಯೋಗದಾತರಿಗೆ ಕರೆ ಮಾಡಿ",
+    listenBtn: "ಧ್ವನಿಯಾಗಿ ಕೇಳಿ",
+    reportBtn: "ಕೆಲಸವನ್ನು ವರದಿ ಮಾಡಿ",
+    postJobBtn: "ಖಚಿತಪಡಿಸಿ ಮತ್ತು ಕೆಲಸ ಪ್ರಕಟಿಸಿ",
+    extractBtn: "ವಿವರಗಳನ್ನು ಪಡೆಯಿರಿ",
+    demoDisclaimer: "ಡೆಮೊ ಮಾಹಿತಿ. ಉದ್ಯೋಗದಾತರ ಪರಿಶೀಲನೆ ಇನ್ನೂ ಜಾರಿಯಾಗಿಲ್ಲ.",
+    micPermission: "ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಮೈಕ್ರೊಫೋನ್ ಅನುಮತಿಸಿ, ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
+    micNetwork: "ಧ್ವನಿ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ.",
+    micBusy: "ಮೈಕ್ರೊಫೋನ್ ಈಗಾಗಲೇ ಸಕ್ರಿಯವಾಗಿದೆ. ಸ್ವಲ್ಪ ಕಾಯಿರಿ.",
+    micGeneric: "ಮೈಕ್ರೊಫೋನ್ ಪ್ರಾರಂಭಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಟೈಪ್ ಮಾಡಿ."
   }
 };
 
@@ -57,9 +83,9 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
   const recognition = new SpeechRecognition();
   recognition.continuous = false;
   recognition.interimResults = true;
-  recognition.lang = state.language === "hi" ? "hi-IN" : "en-IN";
+  recognition.lang = getSpeechLocale(state.language);
 
-  recognition.onstart = () => {
+  state.recognition = recognition;\n\n  recognition.onstart = () => {
     state.isListening = true;
     if (statusCallback) statusCallback(TRANSLATIONS[state.language].micListening, true);
   };
@@ -74,7 +100,7 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
 
   recognition.onerror = (event) => {
     state.isListening = false;
-    if (statusCallback) statusCallback(`${TRANSLATIONS[state.language].micError} (${event.error})`, false);
+    const key = event.error === "not-allowed" || event.error === "service-not-allowed" ? "micPermission" : event.error === "network" ? "micNetwork" : event.error === "audio-capture" ? "micPermission" : "micError";\n    if (statusCallback) statusCallback(TRANSLATIONS[state.language][key] || TRANSLATIONS[state.language].micError, false);
   };
 
   recognition.onend = () => {
@@ -87,7 +113,7 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
 
 // Language Switcher
 function setLanguage(lang) {
-  state.language = lang;
+  state.language = lang;\n  document.documentElement.lang = lang;
   document.querySelectorAll(".lang-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.lang === lang);
   });
@@ -101,7 +127,7 @@ function setLanguage(lang) {
   });
 
   if (state.recognition) {
-    state.recognition.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    try {\n      state.recognition.lang = getSpeechLocale(lang);\n    } catch (error) {\n      console.warn("Could not update speech language", error);\n    }
   }
 }
 
