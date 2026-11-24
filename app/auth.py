@@ -45,7 +45,7 @@ def init_auth_db():
 def hash_password(password):
     salt = secrets.token_bytes(16)
     digest = hashlib.pbkdf2_hmac("sha256", password.encode(), salt, PASSWORD_ITERATIONS)
-    return f"pbkdf2_sha256${{PASSWORD_ITERATIONS}}${{salt.hex()}}${{digest.hex()}}"
+    return "pbkdf2_sha256$" + str(PASSWORD_ITERATIONS) + "$" + salt.hex() + "$" + digest.hex()
 
 def verify_password(password, stored):
     try:
