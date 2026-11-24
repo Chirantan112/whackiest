@@ -194,21 +194,7 @@
 
     // Mic button click
     empMicBtn.addEventListener("click", () => {
-      if (!empRecognition) {
-        TASKORA.showToast("Speech recognition not supported in this browser. Please type below.");
-        return;
-      }
-      if (TASKORA.state.isListening) {
-        empRecognition.stop();
-        return;
-      }
-      try {
-        empRecognition.lang = TASKORA.getSpeechLocale(TASKORA.state.language);
-        empRecognition.start();
-      } catch (err) {
-        console.error("Could not start speech recognition:", err);
-        TASKORA.showToast(TASKORA.TRANSLATIONS[TASKORA.state.language].micGeneric);
-      }
+      TASKORA.startSpeechRecognition(empRecognition);
     });
 
     // Language toggle
