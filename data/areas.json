@@ -3,73 +3,127 @@
   "areas": [
     {
       "name": "Yelahanka",
-      "aliases": ["yelahanka", "yelahanka new town", "yelahanka old town"],
+      "aliases": [
+        "yelahanka",
+        "yelahanka new town",
+        "yelahanka old town",
+        "ಯಲಹಂಕ"
+      ],
       "latitude": 13.1007,
       "longitude": 77.5963
     },
     {
       "name": "Hebbal",
-      "aliases": ["hebbal", "hebbala"],
+      "aliases": [
+        "hebbal",
+        "hebbala",
+        "ಹೆಬ್ಬಾಳ"
+      ],
       "latitude": 13.0358,
-      "longitude": 77.5970
+      "longitude": 77.597
     },
     {
       "name": "Malleshwaram",
-      "aliases": ["malleshwaram", "malleswaram", "malleswaram 8th cross"],
+      "aliases": [
+        "malleshwaram",
+        "malleswaram",
+        "malleswaram 8th cross",
+        "ಮಲ್ಲೇಶ್ವರಂ"
+      ],
       "latitude": 13.0031,
       "longitude": 77.5643
     },
     {
       "name": "Rajajinagar",
-      "aliases": ["rajajinagar", "rajaji nagar"],
+      "aliases": [
+        "rajajinagar",
+        "rajaji nagar",
+        "ರಾಜಾಜಿನಗರ"
+      ],
       "latitude": 12.9982,
-      "longitude": 77.5530
+      "longitude": 77.553
     },
     {
       "name": "Yeshwanthpur",
-      "aliases": ["yeshwanthpur", "yeshwantpur", "yeshwanthapura"],
-      "latitude": 13.0280,
+      "aliases": [
+        "yeshwanthpur",
+        "yeshwantpur",
+        "yeshwanthapura",
+        "ಯಶವಂತಪುರ"
+      ],
+      "latitude": 13.028,
       "longitude": 77.5408
     },
     {
       "name": "Peenya",
-      "aliases": ["peenya", "peenya industrial area"],
+      "aliases": [
+        "peenya",
+        "peenya industrial area",
+        "ಪೀಣ್ಯ"
+      ],
       "latitude": 13.0285,
       "longitude": 77.5197
     },
     {
       "name": "Jayanagar",
-      "aliases": ["jayanagar", "jaya nagar", "jayanagar 4th block"],
+      "aliases": [
+        "jayanagar",
+        "jaya nagar",
+        "jayanagar 4th block",
+        "ಜಯನಗರ"
+      ],
       "latitude": 12.9308,
       "longitude": 77.5838
     },
     {
       "name": "Koramangala",
-      "aliases": ["koramangala", "kora"],
+      "aliases": [
+        "koramangala",
+        "kora",
+        "ಕೋರಮಂಗಲ"
+      ],
       "latitude": 12.9352,
       "longitude": 77.6245
     },
     {
       "name": "Whitefield",
-      "aliases": ["whitefield", "itpl"],
+      "aliases": [
+        "whitefield",
+        "itpl",
+        "ವೈಟ್‌ಫೀಲ್ಡ್"
+      ],
       "latitude": 12.9698,
       "longitude": 77.7499
     },
     {
       "name": "Marathahalli",
-      "aliases": ["marathahalli", "marathalli"],
+      "aliases": [
+        "marathahalli",
+        "marathalli",
+        "ಮಾರತಹಳ್ಳಿ"
+      ],
       "latitude": 12.9591,
       "longitude": 77.6974
     },
     {
       "name": "Banashankari",
-      "aliases": ["banashankari", "bsk"],
+      "aliases": [
+        "banashankari",
+        "bsk",
+        "ಬನಶಂಕರಿ"
+      ],
       "latitude": 12.9255,
       "longitude": 77.5468
     },
     {
       "name": "Electronic City",
-      "aliases": ["electronic city", "electronic city phase 1", "electronic city phase 2", "ecity"],
+      "aliases": [
+        "electronic city",
+        "electronic city phase 1",
+        "electronic city phase 2",
+        "ecity",
+        "ಎಲೆಕ್ಟ್ರಾನಿಕ್ ಸಿಟಿ"
+      ],
       "latitude": 12.8458,
       "longitude": 77.6658
     }
