@@ -53,7 +53,7 @@ TASKORA deterministically extracts the skill, locality, pay, and duration, calcu
 - **Voice & Speech:**
   - Speech Input: Browser Web Speech API (`SpeechRecognition` / `webkitSpeechRecognition`)
   - Speech Output: ElevenLabs API (`eleven_multilingual_v2`) with SHA-256 disk caching & browser `speechSynthesis` fallback
-- **Testing:** pytest (31 unit and integration tests passing)
+- **Testing:** pytest
 
 ---
 
@@ -179,8 +179,8 @@ Results are ranked descending by Final Score; top 5 matching jobs are returned.
 
 ### Clone & Install
 ```bash
-git clone https://github.com/your-username/taskora.git
-cd taskora
+git clone https://github.com/Chirantan112/whackiest.git
+cd whackiest
 
 # Create virtual environment (optional but recommended)
 python -m venv venv
@@ -248,12 +248,12 @@ Run the full pytest suite:
 ```bash
 pytest tests -v
 ```
-All 31 unit and integration tests pass:
+The test suite covers:
 - `tests/test_extract.py`: English, Devanagari Hindi, Romanized Hindi, area, pay, duration, and missing fields.
 - `tests/test_matcher.py`: Haversine calculation, proximity ranking, pay fit, closed and reported jobs exclusion.
 - `tests/test_api.py`: FastAPI routes, validation, search, report, and TTS fallback.
 - `tests/test_frontend.py`: HTML pages, status codes, branding, disclaimers, and interactive elements.
-- `tests/test_voice.py`: Deterministic hashing, disk cache retrieval, empty input handling, and fallback behavior.
+- `tests/test_voice.py`: Language-aware deterministic hashing, disk cache retrieval, empty input handling, and safe API/network fallback behavior.
 
 ---
 
