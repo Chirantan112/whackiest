@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASKORA - Find Nearby Work</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="/" class="brand">
+        <div class="brand-logo">T</div>
+        <span class="brand-title">TASKORA</span>
+      </a>
+
+      <div class="nav-actions">
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="en" onclick="setWorkerLanguage('en')">EN</button>
+          <button class="lang-btn" data-lang="hi" onclick="setWorkerLanguage('hi')">हिंदी</button>
+        </div>
+        <a href="/employer" class="btn-sm" style="background:#e0f2fe; color:#0369a1; text-decoration:none;">Post Job</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- Hackathon Disclaimer -->
+    <div class="disclaimer-banner" role="alert">
+      <span>ℹ️</span>
+      <span data-i18n="demoDisclaimer">Demo data. Employer verification is not implemented yet.</span>
+    </div>
+
+    <!-- Voice & Search Input Panel -->
+    <section class="voice-panel">
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--primary);" id="panelTitle">
+        Say your skill & location
+      </h2>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;" id="panelSubtitle">
+        Example: "I am an electrician in Hebbal" or "मुझे कोरमंगला में पेंटर का काम चाहिए"
+      </p>
+
+      <div class="mic-wrapper">
+        <button id="micBtn" class="mic-button" aria-label="Record voice input" title="Click to speak">
+          🎙️
+        </button>
+        <div id="micStatus" class="mic-status" data-i18n="micIdle">Tap microphone to speak</div>
+      </div>
+
+      <!-- Editable Speech Transcript -->
+      <textarea id="transcriptInput" class="transcript-box" placeholder="Your spoken words will appear here, or you can type directly..."></textarea>
+
+      <!-- Extracted Metadata Chips -->
+      <div id="extractedChips" class="extracted-chips" style="display: none;"></div>
+
+      <!-- Follow-up Question Alert (if skill or area missing) -->
+      <div id="followUpAlert" class="follow-up-box" style="display: none;"></div>
+
+      <button id="searchBtn" class="search-btn">
+        <span id="searchBtnText" data-i18n="searchBtn">Find Nearby Jobs</span>
+      </button>
+    </section>
+
+    <!-- Job Results Section -->
+    <section id="resultsSection">
+      <div class="results-header">
+        <h3 class="results-title" id="resultsCount">Nearby Opportunities</h3>
+        <span id="activeFilters" style="font-size: 0.85rem; color: var(--text-muted);"></span>
+      </div>
+
+      <div id="jobsList">
+        <div class="empty-state">
+          <div class="empty-icon">🔍</div>
+          <p>Press the microphone above or type what work you do to see jobs near you.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p><strong>TASKORA</strong> • Hyper-Local Job Matching for Informal & Semi-Skilled Workers</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+  <script>
+    // Worker Page Interactive Script
+    const micBtn = document.getElementById("micBtn");
+    const micStatus = document.getElementById("micStatus");
+    const transcriptInput = document.getElementById("transcriptInput");
+    const searchBtn = document.getElementById("searchBtn");
+    const extractedChips = document.getElementById("extractedChips");
+    const followUpAlert = document.getElementById("followUpAlert");
+    const jobsList = document.getElementById("jobsList");
+    const resultsCount = document.getElementById("resultsCount");
+    const activeFilters = document.getElementById("activeFilters");
+
+    let extractedData = null;
+
+    // Initialize speech recognition
+    const recognition = TASKORA.initSpeechRecognition(
+      (text) => {
+        transcriptInput.value = text;
+      },
+      (statusText, isListening) => {
+        micStatus.textContent = statusText;
+        if (isListening) {
+          micBtn.classList.add("listening");
+        } else {
+          micBtn.classList.remove("listening");
+          // When user finishes speaking, auto-trigger parse
+          if (transcriptInput.value.trim().length > 3) {
+            handleParse(transcriptInput.value.trim());
+          }
+        }
+      }
+    );
+
+    // Mic click handler
+    micBtn.addEventListener("click", () => {
+      if (!recognition) {
+        TASKORA.showToast("Speech recognition not supported in this browser. Please type below.");
+        return;
+      }
+      try {
+        recognition.start();
+      } catch (err) {
+        recognition.stop();
+      }
+    });
+
+    // Language toggle handler
+    function setWorkerLanguage(lang) {
+      TASKORA.setLanguage(lang);
+      const isHi = lang === "hi";
+      document.getElementById("panelTitle").textContent = isHi ? "अपना हुनर और इलाका बताएं" : "Say your skill & location";
+      document.getElementById("panelSubtitle").textContent = isHi ? 'उदाहरण: "मुझे कोरमंगला में पेंटर का काम चाहिए"' : 'Example: "I am an electrician in Hebbal"';
+      transcriptInput.placeholder = isHi ? "आपके बोले गए शब्द यहाँ दिखाई देंगे, या आप स्वयं लिख सकते हैं..." : "Your spoken words will appear here, or you can type directly...";
+    }
+
+    // Natural Language Parse Handler
+    async function handleParse(text) {
+      if (!text) return;
+      try {
+        const parsed = await TASKORA.parseText(text);
+        extractedData = parsed;
+        renderExtractedChips(parsed);
+
+        if (parsed.follow_up_question) {
+          followUpAlert.textContent = "❓ " + parsed.follow_up_question;
+          followUpAlert.style.display = "block";
+          TASKORA.speakText(parsed.follow_up_question);
+        } else {
+          followUpAlert.style.display = "none";
+        }
+
+        // If skill and area are extracted, trigger search automatically
+        if (parsed.skill && parsed.area) {
+          executeSearch(parsed.skill, parsed.area);
+        }
+      } catch (err) {
+        console.error("Parse error", err);
+      }
+    }
+
+    function renderExtractedChips(parsed) {
+      extractedChips.innerHTML = "";
+      extractedChips.style.display = "flex";
+
+      if (parsed.skill) {
+        extractedChips.innerHTML += `<span class="chip highlight">🛠️ Skill: ${parsed.skill}</span>`;
+      }
+      if (parsed.area) {
+        extractedChips.innerHTML += `<span class="chip highlight">📍 Area: ${parsed.area}</span>`;
+      }
+      if (parsed.pay) {
+        extractedChips.innerHTML += `<span class="chip">💰 ₹${parsed.pay}</span>`;
+      }
+      if (parsed.duration) {
+        extractedChips.innerHTML += `<span class="chip">⏱️ ${parsed.duration}</span>`;
+      }
+    }
+
+    // Manual Search click
+    searchBtn.addEventListener("click", async () => {
+      const text = transcriptInput.value.trim();
+      if (!text) {
+        TASKORA.showToast("Please speak or type your skill and location first.");
+        return;
+      }
+      await handleParse(text);
+    });
+
+    // Search Execution
+    async function executeSearch(skill, area) {
+      jobsList.innerHTML = `<div class="empty-state"><div class="loader"></div><p style="margin-top:0.75rem;">Finding matching jobs nearby...</p></div>`;
+      activeFilters.textContent = `${skill} in ${area}`;
+
+      try {
+        const response = await TASKORA.fetchMatchingJobs(skill, area, 15.0);
+        renderJobs(response.jobs, skill, area);
+      } catch (err) {
+        jobsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">⚠️</div>
+            <p style="color:var(--danger); font-weight:700;">${err.message}</p>
+          </div>
+        `;
+      }
+    }
+
+    // Render Job Cards
+    function renderJobs(jobs, skill, area) {
+      if (!jobs || jobs.length === 0) {
+        jobsList.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <p><strong>No matching ${skill} jobs found within 15 km of ${area}.</strong></p>
+            <p style="font-size:0.85rem; margin-top:0.35rem;">Try searching an adjacent locality or check back shortly.</p>
+          </div>
+        `;
+        resultsCount.textContent = "0 Jobs Found";
+        return;
+      }
+
+      resultsCount.textContent = `${jobs.length} Matching Jobs Nearby`;
+      let html = "";
+
+      jobs.forEach((job) => {
+        const scorePercent = Math.round((job.final_score / 1.0) * 100);
+        const speechSummary = `Job for ${job.skill} in ${job.area}. Pay is ${job.pay || 'negotiable'} rupees. Employer is ${job.employer_name}. Phone is ${job.employer_phone}.`;
+
+        html += `
+          <article class="job-card" id="job-card-${job.id}">
+            <div class="card-top">
+              <span class="card-skill">${job.skill}</span>
+              <span class="score-badge" title="Algorithm Match: ${scorePercent}% (Skill + Distance + Recency + Pay)">
+                ⭐ Match Score: ${scorePercent}%
+              </span>
+            </div>
+
+            <div class="card-employer">👤 ${job.employer_name}</div>
+
+            <div class="card-details-grid">
+              <div class="detail-item">
+                <strong>Location</strong>
+                📍 ${job.area} (${job.distance} km away)
+              </div>
+              <div class="detail-item">
+                <strong>Pay</strong>
+                💰 ${job.pay ? '₹' + job.pay + ' / day' : 'Negotiable'}
+              </div>
+              <div class="detail-item">
+                <strong>Duration</strong>
+                ⏱️ ${job.duration || 'Standard'}
+              </div>
+            </div>
+
+            <p class="card-description">${job.description || 'Open local job opportunity.'}</p>
+
+            <div class="card-actions">
+              <a href="tel:${job.employer_phone}" class="btn-sm btn-call">
+                📞 Call: ${job.employer_phone}
+              </a>
+              <button class="btn-sm btn-audio" onclick="TASKORA.speakText('${speechSummary.replace(/'/g, "\\'")}')">
+                🔊 Read Aloud
+              </button>
+              <button class="btn-sm btn-report" onclick="reportJob(${job.id})">
+                🚩 Report
+              </button>
+            </div>
+          </article>
+        `;
+      });
+
+      jobsList.innerHTML = html;
+    }
+
+    // Report Job Handler
+    async function reportJob(jobId) {
+      if (!confirm("Are you sure you want to report this job listing as incorrect or suspicious?")) {
+        return;
+      }
+      try {
+        const res = await TASKORA.reportJobById(jobId);
+        TASKORA.showToast(`Report submitted. Report count: ${res.report_count}`);
+        const card = document.getElementById(`job-card-${jobId}`);
+        if (card) {
+          card.style.opacity = "0.5";
+          card.style.pointerEvents = "none";
+          card.querySelector(".btn-report").textContent = "Flagged";
+        }
+      } catch (err) {
+        TASKORA.showToast("Could not submit report: " + err.message);
+      }
+    }
+  </script>
+</body>
+</html>

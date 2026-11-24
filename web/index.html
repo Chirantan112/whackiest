@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASKORA - Say your skill. Find work nearby.</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="/" class="brand">
+        <div class="brand-logo">T</div>
+        <span class="brand-title">TASKORA</span>
+        <span class="brand-badge">wHACKiest 2026</span>
+      </a>
+
+      <div class="nav-actions">
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="en" onclick="TASKORA.setLanguage('en')">EN</button>
+          <button class="lang-btn" data-lang="hi" onclick="TASKORA.setLanguage('hi')">हिंदी</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- Hackathon & Demo Disclaimer -->
+    <div class="disclaimer-banner" role="alert">
+      <span>ℹ️</span>
+      <span data-i18n="demoDisclaimer">Demo data. Employer verification is not implemented yet.</span>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <h1 class="hero-tagline" data-i18n="tagline">Say your skill. Find work nearby.</h1>
+      <p class="hero-subtext">
+        A voice-first, hyper-local job matching platform designed for informal and semi-skilled workers.
+        Connect directly with local opportunities using simple voice or text in English and Hindi.
+      </p>
+
+      <!-- Primary Action Cards -->
+      <div class="hero-actions">
+        <!-- Worker Action -->
+        <a href="/worker" class="action-card worker">
+          <div class="action-icon">🛠️</div>
+          <h2 class="action-title">I Need Work</h2>
+          <p class="action-desc">Speak or type your skill and location to find paying jobs nearby today.</p>
+        </a>
+
+        <!-- Employer Action -->
+        <a href="/employer" class="action-card employer">
+          <div class="action-icon">📋</div>
+          <h2 class="action-title">I Need a Worker</h2>
+          <p class="action-desc">Say what helper, mistri, or worker you need, and post an open job in seconds.</p>
+        </a>
+      </div>
+    </section>
+
+    <!-- How It Works / Key Features -->
+    <section class="features-section">
+      <div class="features-grid">
+        <div class="feature-item">
+          <h3 class="feature-title">🎙️ Voice-First Simplicity</h3>
+          <p class="action-desc">Works through natural speech recognition in English and Hindi. No complicated forms or digital hurdles.</p>
+        </div>
+        <div class="feature-item">
+          <h3 class="feature-title">📍 Hyper-Local Distance</h3>
+          <p class="action-desc">Matches jobs within your Bengaluru neighborhood using the transparent Haversine geographical formula.</p>
+        </div>
+        <div class="feature-item">
+          <h3 class="feature-title">⚖️ Transparent Matching</h3>
+          <p class="action-desc">Multi-factor scoring based on skill, proximity, pay fit, and recency without opaque black-box algorithms.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p><strong>TASKORA</strong> • Track 4 – UnlockED • wHACKiest 2026 Hackathon</p>
+    <p style="margin-top: 0.25rem; font-size: 0.8rem;">Empowering informal and semi-skilled livelihoods through accessible voice tech.</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

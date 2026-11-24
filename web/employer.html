@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TASKORA - Post a Job</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="header">
+    <div class="header-container">
+      <a href="/" class="brand">
+        <div class="brand-logo">T</div>
+        <span class="brand-title">TASKORA</span>
+      </a>
+
+      <div class="nav-actions">
+        <div class="lang-toggle" role="group" aria-label="Language selector">
+          <button class="lang-btn active" data-lang="en" onclick="setEmployerLanguage('en')">EN</button>
+          <button class="lang-btn" data-lang="hi" onclick="setEmployerLanguage('hi')">हिंदी</button>
+        </div>
+        <a href="/worker" class="btn-sm" style="background:#e0f2fe; color:#0369a1; text-decoration:none;">Find Work</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- Hackathon Disclaimer -->
+    <div class="disclaimer-banner" role="alert">
+      <span>ℹ️</span>
+      <span data-i18n="demoDisclaimer">Demo data. Employer verification is not implemented yet.</span>
+    </div>
+
+    <!-- Voice / Natural Language Prompt Panel -->
+    <section class="voice-panel">
+      <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--secondary);" id="empPanelTitle">
+        Say what worker you need
+      </h2>
+      <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0.25rem;" id="empPanelSubtitle">
+        Example: "I need a plumber in Whitefield for 3 days. Payment is 800 rupees per day."
+      </p>
+
+      <div class="mic-wrapper">
+        <button id="empMicBtn" class="mic-button" style="background: linear-gradient(135deg, var(--secondary), #0d9488);" aria-label="Record job requirements" title="Click to speak">
+          🎙️
+        </button>
+        <div id="empMicStatus" class="mic-status" data-i18n="micIdle">Tap microphone to speak</div>
+      </div>
+
+      <textarea id="empTranscript" class="transcript-box" placeholder="Speak or describe your job requirement in your own words..."></textarea>
+
+      <button id="extractBtn" class="primary-btn" style="background-color: var(--secondary);">
+        <span id="extractBtnText" data-i18n="extractBtn">Extract Details</span>
+      </button>
+    </section>
+
+    <!-- Review & Confirmation Form -->
+    <section class="form-panel">
+      <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 1rem; color: var(--text-main);">
+        Review & Confirm Job Listing
+      </h3>
+
+      <form id="jobPostForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="formSkill">Skill Required *</label>
+            <select id="formSkill" class="form-control" required>
+              <option value="">-- Select Skill --</option>
+              <option value="Electrician">Electrician (बिजली वाला)</option>
+              <option value="Plumber">Plumber (नल वाला)</option>
+              <option value="Painter">Painter (पेंटर)</option>
+              <option value="Carpenter">Carpenter (बढ़ई)</option>
+              <option value="Mason">Mason (राज मिस्त्री)</option>
+              <option value="Driver">Driver (चालक)</option>
+              <option value="Cook">Cook (रसोइया)</option>
+              <option value="Cleaner">Cleaner (सफाई वाला)</option>
+              <option value="Helper">Helper (मददगार / मजदूर)</option>
+              <option value="Security Guard">Security Guard (चौकीदार)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="formArea">Bengaluru Locality *</label>
+            <select id="formArea" class="form-control" required>
+              <option value="">-- Select Locality --</option>
+              <option value="Yelahanka">Yelahanka</option>
+              <option value="Hebbal">Hebbal</option>
+              <option value="Malleshwaram">Malleshwaram</option>
+              <option value="Rajajinagar">Rajajinagar</option>
+              <option value="Yeshwanthpur">Yeshwanthpur</option>
+              <option value="Peenya">Peenya</option>
+              <option value="Jayanagar">Jayanagar</option>
+              <option value="Koramangala">Koramangala</option>
+              <option value="Whitefield">Whitefield</option>
+              <option value="Marathahalli">Marathahalli</option>
+              <option value="Banashankari">Banashankari</option>
+              <option value="Electronic City">Electronic City</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="formPay">Daily Pay (₹)</label>
+            <input type="number" id="formPay" class="form-control" placeholder="e.g. 800" min="0" step="50">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="formDuration">Duration</label>
+            <input type="text" id="formDuration" class="form-control" placeholder="e.g. 3 days, 1 week">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="formDesc">Work Description</label>
+          <input type="text" id="formDesc" class="form-control" placeholder="Short description of the work needed">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="formEmployer">Your Name or Business *</label>
+            <input type="text" id="formEmployer" class="form-control" placeholder="e.g. Anand Sharma" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="formPhone">Contact Phone Number *</label>
+            <input type="tel" id="formPhone" class="form-control" placeholder="10-digit mobile number" required pattern="[0-9]{10}">
+          </div>
+        </div>
+
+        <button type="submit" id="submitJobBtn" class="primary-btn" style="background-color: var(--primary);">
+          <span data-i18n="postJobBtn">Confirm & Post Job</span>
+        </button>
+      </form>
+
+      <!-- Post Success State -->
+      <div id="postSuccessBox" style="display: none; margin-top: 1.5rem; background: #ecfdf5; border: 1.5px solid #6ee7b7; padding: 1.25rem; border-radius: var(--radius-md); text-align: center;">
+        <h4 style="color: #065f46; font-size: 1.15rem; font-weight: 800;">🎉 Job Posted Successfully!</h4>
+        <p style="color: #047857; font-size: 0.9rem; margin-top: 0.35rem;" id="successJobText"></p>
+        <div style="margin-top: 1rem; display: flex; gap: 0.75rem; justify-content: center;">
+          <a id="viewMatchingLink" href="/worker" class="btn-sm btn-call" style="text-decoration: none;">View Matching Workers</a>
+          <button class="btn-sm btn-audio" onclick="resetForm()">Post Another Job</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <p><strong>TASKORA</strong> • Hyper-Local Job Matching for Informal & Semi-Skilled Workers</p>
+  </footer>
+
+  <script src="/static/app.js"></script>
+  <script>
+    const empMicBtn = document.getElementById("empMicBtn");
+    const empMicStatus = document.getElementById("empMicStatus");
+    const empTranscript = document.getElementById("empTranscript");
+    const extractBtn = document.getElementById("extractBtn");
+    const jobPostForm = document.getElementById("jobPostForm");
+    const postSuccessBox = document.getElementById("postSuccessBox");
+    const successJobText = document.getElementById("successJobText");
+    const viewMatchingLink = document.getElementById("viewMatchingLink");
+
+    // Form inputs
+    const formSkill = document.getElementById("formSkill");
+    const formArea = document.getElementById("formArea");
+    const formPay = document.getElementById("formPay");
+    const formDuration = document.getElementById("formDuration");
+    const formDesc = document.getElementById("formDesc");
+    const formEmployer = document.getElementById("formEmployer");
+    const formPhone = document.getElementById("formPhone");
+
+    // Initialize speech recognition
+    const empRecognition = TASKORA.initSpeechRecognition(
+      (text) => {
+        empTranscript.value = text;
+      },
+      (statusText, isListening) => {
+        empMicStatus.textContent = statusText;
+        if (isListening) {
+          empMicBtn.classList.add("listening");
+        } else {
+          empMicBtn.classList.remove("listening");
+          if (empTranscript.value.trim().length > 3) {
+            handleExtract();
+          }
+        }
+      }
+    );
+
+    // Mic button click
+    empMicBtn.addEventListener("click", () => {
+      if (!empRecognition) {
+        TASKORA.showToast("Speech recognition not supported in this browser. Please type below.");
+        return;
+      }
+      try {
+        empRecognition.start();
+      } catch (err) {
+        empRecognition.stop();
+      }
+    });
+
+    // Language toggle
+    function setEmployerLanguage(lang) {
+      TASKORA.setLanguage(lang);
+      const isHi = lang === "hi";
+      document.getElementById("empPanelTitle").textContent = isHi ? "बताएं आपको किस कारीगर की जरूरत है" : "Say what worker you need";
+      document.getElementById("empPanelSubtitle").textContent = isHi ? 'उदाहरण: "मुझे वाइटफील्ड में 3 दिन के लिए प्लंबर चाहिए। 800 रुपये रोज दूंगा।"' : 'Example: "I need a plumber in Whitefield for 3 days. Payment is 800 rupees per day."';
+      empTranscript.placeholder = isHi ? "बोलकर या लिखकर बताएं आपको कैसा काम कराना है..." : "Speak or describe your job requirement in your own words...";
+    }
+
+    // Extract Details from text
+    async function handleExtract() {
+      const text = empTranscript.value.trim();
+      if (!text) {
+        TASKORA.showToast("Please speak or write your requirement first.");
+        return;
+      }
+
+      try {
+        const parsed = await TASKORA.parseText(text);
+        if (parsed.skill) formSkill.value = parsed.skill;
+        if (parsed.area) formArea.value = parsed.area;
+        if (parsed.pay) formPay.value = parsed.pay;
+        if (parsed.duration) formDuration.value = parsed.duration;
+        if (!formDesc.value) {
+          formDesc.value = text;
+        }
+        TASKORA.showToast("Extracted job details! Please review and fill your contact info.");
+      } catch (err) {
+        console.error("Extraction error", err);
+      }
+    }
+
+    extractBtn.addEventListener("click", handleExtract);
+
+    // Form submission
+    jobPostForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const payload = {
+        skill: formSkill.value,
+        area: formArea.value,
+        pay: formPay.value ? parseFloat(formPay.value) : null,
+        duration: formDuration.value.trim() || "1 day",
+        description: formDesc.value.trim() || `${formSkill.value} required in ${formArea.value}`,
+        employer_name: formEmployer.value.trim(),
+        employer_phone: formPhone.value.trim()
+      };
+
+      try {
+        const res = await fetch("/api/jobs", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.detail || "Failed to post job");
+        }
+
+        const data = await res.json();
+        const created = data.job;
+
+        postSuccessBox.style.display = "block";
+        successJobText.textContent = `Listed: ${created.skill} in ${created.area} (ID: #${created.id}). Open to nearby workers.`;
+        viewMatchingLink.href = `/worker`;
+        jobPostForm.style.display = "none";
+        TASKORA.showToast("Job successfully posted!");
+      } catch (err) {
+        TASKORA.showToast("Error: " + err.message);
+      }
+    });
+
+    function resetForm() {
+      jobPostForm.reset();
+      jobPostForm.style.display = "block";
+      postSuccessBox.style.display = "none";
+      empTranscript.value = "";
+    }
+  </script>
+</body>
+</html>
