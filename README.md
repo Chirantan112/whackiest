@@ -238,8 +238,8 @@ Open your browser at:
 | `GET` | `/worker` | Serves Worker Page (`web/worker.html`) |
 | `GET` | `/employer` | Serves Employer Page (`web/employer.html`) |
 | `GET` | `/auth` | Signup/login page |
-| `POST` | `/api/auth/request-otp` | Create account |
-| `POST` | `/api/auth/verify-otp` | Log in and create session |
+| `POST` | `/api/auth/signup` | Create account and start session |
+| `POST` | `/api/auth/login` | Log in and start session |
 | `GET` | `/api/auth/me` | Current signed-in account |
 | `POST` | `/api/auth/logout` | Revoke current session |
 | `GET` | `/api/health` | Health status and open jobs count |
@@ -317,7 +317,7 @@ taskora/
 
 ## 15. Future Enhancements
 
-1. **OTP-Verified Employers:** Phone verification via SMS OTP to prevent fraudulent job postings.
+1. **Employer Trust & Safety:** Employer profile checks and improved reporting to reduce fraudulent job postings.
 2. **WhatsApp Integration:** Direct job alerts and voice note submissions via the WhatsApp Business API.
 3. **Missed-Call & IVR Support:** Interactive voice response (IVR) phone hotline for workers with basic feature phones (no smartphone required).
 4. **Additional Indian Languages:** Extend voice recognition and localized parsing to more regional languages.
