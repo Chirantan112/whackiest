@@ -1,0 +1,77 @@
+{
+  "_disclaimer": "These coordinates represent approximate center points of Bengaluru localities for demonstration and hackathon matching purposes. They do not represent precise street-level GPS tracking.",
+  "areas": [
+    {
+      "name": "Yelahanka",
+      "aliases": ["yelahanka", "yelahanka new town", "yelahanka old town"],
+      "latitude": 13.1007,
+      "longitude": 77.5963
+    },
+    {
+      "name": "Hebbal",
+      "aliases": ["hebbal", "hebbala"],
+      "latitude": 13.0358,
+      "longitude": 77.5970
+    },
+    {
+      "name": "Malleshwaram",
+      "aliases": ["malleshwaram", "malleswaram", "malleswaram 8th cross"],
+      "latitude": 13.0031,
+      "longitude": 77.5643
+    },
+    {
+      "name": "Rajajinagar",
+      "aliases": ["rajajinagar", "rajaji nagar"],
+      "latitude": 12.9982,
+      "longitude": 77.5530
+    },
+    {
+      "name": "Yeshwanthpur",
+      "aliases": ["yeshwanthpur", "yeshwantpur", "yeshwanthapura"],
+      "latitude": 13.0280,
+      "longitude": 77.5408
+    },
+    {
+      "name": "Peenya",
+      "aliases": ["peenya", "peenya industrial area"],
+      "latitude": 13.0285,
+      "longitude": 77.5197
+    },
+    {
+      "name": "Jayanagar",
+      "aliases": ["jayanagar", "jaya nagar", "jayanagar 4th block"],
+      "latitude": 12.9308,
+      "longitude": 77.5838
+    },
+    {
+      "name": "Koramangala",
+      "aliases": ["koramangala", "kora"],
+      "latitude": 12.9352,
+      "longitude": 77.6245
+    },
+    {
+      "name": "Whitefield",
+      "aliases": ["whitefield", "itpl"],
+      "latitude": 12.9698,
+      "longitude": 77.7499
+    },
+    {
+      "name": "Marathahalli",
+      "aliases": ["marathahalli", "marathalli"],
+      "latitude": 12.9591,
+      "longitude": 77.6974
+    },
+    {
+      "name": "Banashankari",
+      "aliases": ["banashankari", "bsk"],
+      "latitude": 12.9255,
+      "longitude": 77.5468
+    },
+    {
+      "name": "Electronic City",
+      "aliases": ["electronic city", "electronic city phase 1", "electronic city phase 2", "ecity"],
+      "latitude": 12.8458,
+      "longitude": 77.6658
+    }
+  ]
+}
