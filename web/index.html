@@ -18,6 +18,7 @@
       </a>
 
       <div class="nav-actions">
+        <a href="/auth" class="btn-sm" style="background:#e0f2fe;color:#0369a1;text-decoration:none">Sign up / Log in</a>
         <div class="lang-toggle" role="group" aria-label="Language selector">
           <button class="lang-btn active" data-lang="en" onclick="TASKORA.setLanguage('en')">EN</button>
           <button class="lang-btn" data-lang="hi" onclick="TASKORA.setLanguage('hi')">हिंदी</button>
@@ -46,14 +47,14 @@
       <!-- Primary Action Cards -->
       <div class="hero-actions">
         <!-- Worker Action -->
-        <a href="/worker" class="action-card worker">
+        <a href="/auth?role=worker&next=%2Fworker" class="action-card worker">
           <div class="action-icon">🛠️</div>
           <h2 class="action-title">I Need Work</h2>
           <p class="action-desc">Speak or type your skill and location to find paying jobs nearby today.</p>
         </a>
 
         <!-- Employer Action -->
-        <a href="/employer" class="action-card employer">
+        <a href="/auth?role=employer&next=%2Femployer" class="action-card employer">
           <div class="action-icon">📋</div>
           <h2 class="action-title">I Need a Worker</h2>
           <p class="action-desc">Say what helper, mistri, or worker you need, and post an open job in seconds.</p>

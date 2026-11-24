@@ -210,6 +210,18 @@ PORT=8000
 
 ---
 
+## Email OTP Authentication
+
+Signup and login use the same passwordless six-digit email OTP flow. The account is created only after successful verification. Worker and employer roles are separate, and the job-posting API requires a verified employer session. OTPs expire after 10 minutes, have a 60-second resend cooldown and five attempts. Sessions are stored server-side and delivered in HttpOnly cookies.
+
+Email delivery uses configurable SMTP. A free transactional-email tier can cover a small demo, but the provider's current limits and verified-sender/domain requirements apply. Phone/SMS OTP is not included because real SMS delivery is generally not sustainably free.
+
+Configure these deployment environment variables (never commit credentials):
+- `AUTH_SECRET`: random secret of at least 32 characters
+- `SMTP_HOST`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD`, `SMTP_FROM`
+- `SMTP_USE_TLS=true`
+- `COOKIE_SECURE=true` when deployed over HTTPS
+
 ## 10. Running the Application
 
 Start the FastAPI application with Uvicorn:
@@ -231,6 +243,11 @@ Open your browser at:
 | `GET` | `/` | Serves Landing Page (`web/index.html`) |
 | `GET` | `/worker` | Serves Worker Page (`web/worker.html`) |
 | `GET` | `/employer` | Serves Employer Page (`web/employer.html`) |
+| `GET` | `/auth` | Email signup/login page |
+| `POST` | `/api/auth/request-otp` | Send email verification code |
+| `POST` | `/api/auth/verify-otp` | Verify code and create session |
+| `GET` | `/api/auth/me` | Current signed-in account |
+| `POST` | `/api/auth/logout` | Revoke current session |
 | `GET` | `/api/health` | Health status and open jobs count |
 | `GET` | `/api/areas` | List of supported localities and approximate coordinates |
 | `GET` | `/api/skills` | Supported skills and dictionary aliases |
