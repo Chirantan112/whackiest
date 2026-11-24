@@ -27,6 +27,14 @@ def test_audio_hash_deterministic():
     assert h1 != h3
 
 
+def test_audio_hash_separates_languages():
+    """The same text must not reuse audio generated for a different language."""
+    english = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "en")
+    kannada = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "kn")
+    hindi = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "hi")
+    assert len({english, kannada, hindi}) == 3
+
+
 def test_empty_text_handling():
     """Verify empty or whitespace text fails gracefully without crash."""
     res = generate_speech("")
