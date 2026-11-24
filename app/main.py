@@ -9,7 +9,7 @@ import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from fastapi import FastAPI, HTTPException, Query, status
+from fastapi import FastAPI, HTTPException, Query, status, Request, Response, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -26,6 +26,7 @@ from app.db import (
 from app.extract import extract_job_details, SKILL_DICTIONARY
 from app.matcher import match_jobs, get_area_coordinates
 from app.voice import generate_speech
+from app.auth import init_auth_db, request_otp, verify_otp, current_user, require_role, logout
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 WEB_DIR = BASE_DIR / "web"
@@ -40,6 +41,7 @@ async def lifespan(app: FastAPI):
     Initializes database and loads seed jobs on startup if empty.
     """
     init_db()
+    init_auth_db()
     yield
 
 
@@ -103,7 +105,7 @@ async def read_landing():
     return FileResponse(index_path)
 
 
-@app.get("/worker", response_class=FileResponse, tags=["Frontend"])
+@app.get("/auth", response_class=FileResponse, tags=["Frontend"])\nasync def read_auth_page():\n    return FileResponse(WEB_DIR / "auth.html")\n\n\n@app.get("/worker", response_class=FileResponse, tags=["Frontend"])
 async def read_worker_page():
     page_path = WEB_DIR / "worker.html"
     if not page_path.exists():
@@ -117,6 +119,44 @@ async def read_employer_page():
     if not page_path.exists():
         raise HTTPException(status_code=404, detail="Employer page not found")
     return FileResponse(page_path)
+
+
+
+# ---------------------------------------------------------------------------
+# Email OTP Authentication
+# ---------------------------------------------------------------------------
+class OTPRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=254)
+    display_name: str = Field(..., min_length=2, max_length=80)
+    role: str = Field(...)
+
+class OTPVerifyRequest(BaseModel):
+    email: str = Field(..., min_length=5, max_length=254)
+    code: str = Field(..., min_length=6, max_length=6)
+
+@app.post("/api/auth/request-otp", tags=["Authentication"])
+async def send_otp(req: OTPRequest):
+    return request_otp(req.email, req.display_name, req.role)
+
+@app.post("/api/auth/verify-otp", tags=["Authentication"])
+async def verify_otp_code(req: OTPVerifyRequest, response: Response):
+    token, account = verify_otp(req.email, req.code)
+    response.set_cookie("taskora_session", token, httponly=True,
+        secure=os.getenv("COOKIE_SECURE", "false").lower() in {"1","true","yes"},
+        samesite="lax", max_age=30*24*60*60, path="/")
+    return {"message": "Email verified.", "user": account}
+
+@app.get("/api/auth/me", tags=["Authentication"])
+async def who_am_i(request: Request):
+    account = current_user(request)
+    if not account: raise HTTPException(status_code=401, detail="Not signed in.")
+    return {"user": account}
+
+@app.post("/api/auth/logout", tags=["Authentication"])
+async def sign_out(request: Request, response: Response):
+    logout(request)
+    response.delete_cookie("taskora_session", path="/", httponly=True, samesite="lax")
+    return {"message": "Signed out."}
 
 
 # ---------------------------------------------------------------------------
@@ -198,7 +238,7 @@ async def search_matching_jobs(
 
 
 @app.post("/api/jobs", status_code=status.HTTP_201_CREATED, tags=["Jobs"])
-async def create_job(req: CreateJobRequest):
+async def create_job(req: CreateJobRequest, current_account: dict = Depends(require_role("employer"))):
     """
     Creates a new job listing posted by an employer.
     Validates required fields and automatically assigns approximate coordinates
