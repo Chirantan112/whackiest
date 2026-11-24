@@ -30,6 +30,14 @@ def test_audio_hash_deterministic_and_language_aware():
     )
 
 
+def test_audio_hash_separates_english_hindi_and_kannada():
+    """The same text must not reuse cached audio across supported languages."""
+    english = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "en")
+    hindi = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "hi")
+    kannada = get_audio_hash("Namaskara", DEFAULT_VOICE_ID, DEFAULT_MODEL_ID, "kn")
+    assert len({english, hindi, kannada}) == 3
+
+
 def test_empty_text_handling():
     """Empty or whitespace-only text fails gracefully."""
     for text in ("", "   "):

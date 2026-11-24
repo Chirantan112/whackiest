@@ -88,7 +88,7 @@ class CreateJobRequest(BaseModel):
 
 class TTSRequest(BaseModel):
     text: str = Field(..., min_length=1, description="Text to synthesize into speech.")
-    language: Optional[str] = Field("en", description="Language code ('en' or 'hi').")
+    language: Optional[str] = Field("en", description="Language code ('en', 'hi', or 'kn').")
 
 
 # ---------------------------------------------------------------------------

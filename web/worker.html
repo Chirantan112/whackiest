@@ -20,6 +20,7 @@
         <div class="lang-toggle" role="group" aria-label="Language selector">
           <button class="lang-btn active" data-lang="en" onclick="setWorkerLanguage('en')">EN</button>
           <button class="lang-btn" data-lang="hi" onclick="setWorkerLanguage('hi')">हिंदी</button>
+          <button class="lang-btn" data-lang="kn" onclick="setWorkerLanguage('kn')">ಕನ್ನಡ</button>
         </div>
         <a href="/employer" class="btn-sm" style="background:#e0f2fe; color:#0369a1; text-decoration:none;">Post Job</a>
       </div>
@@ -121,24 +122,17 @@
 
     // Mic click handler
     micBtn.addEventListener("click", () => {
-      if (!recognition) {
-        TASKORA.showToast("Speech recognition not supported in this browser. Please type below.");
-        return;
-      }
-      try {
-        recognition.start();
-      } catch (err) {
-        recognition.stop();
-      }
+      TASKORA.startSpeechRecognition(recognition);
     });
 
     // Language toggle handler
     function setWorkerLanguage(lang) {
       TASKORA.setLanguage(lang);
       const isHi = lang === "hi";
-      document.getElementById("panelTitle").textContent = isHi ? "अपना हुनर और इलाका बताएं" : "Say your skill & location";
-      document.getElementById("panelSubtitle").textContent = isHi ? 'उदाहरण: "मुझे कोरमंगला में पेंटर का काम चाहिए"' : 'Example: "I am an electrician in Hebbal"';
-      transcriptInput.placeholder = isHi ? "आपके बोले गए शब्द यहाँ दिखाई देंगे, या आप स्वयं लिख सकते हैं..." : "Your spoken words will appear here, or you can type directly...";
+      const isKn = lang === "kn";
+      document.getElementById("panelTitle").textContent = isKn ? "ನಿಮ್ಮ ಕೌಶಲ್ಯ ಮತ್ತು ಸ್ಥಳವನ್ನು ಹೇಳಿ" : isHi ? "अपना हुनर और इलाका बताएं" : "Say your skill & location";
+      document.getElementById("panelSubtitle").textContent = isKn ? 'ಉದಾಹರಣೆ: "ನನಗೆ ಹೆಬ್ಬಾಳದಲ್ಲಿ ಎಲೆಕ್ಟ್ರಿಷಿಯನ್ ಕೆಲಸ ಬೇಕು"' : isHi ? 'उदाहरण: "मुझे कोरमंगला में पेंटर का काम चाहिए"' : 'Example: "I am an electrician in Hebbal"';
+      transcriptInput.placeholder = isKn ? "ನಿಮ್ಮ ಮಾತು ಇಲ್ಲಿ ಕಾಣಿಸುತ್ತದೆ. ಇಲ್ಲವೇ ಇಲ್ಲಿ ಟೈಪ್ ಮಾಡಿ..." : isHi ? "आपके बोले गए शब्द यहाँ दिखाई देंगे, या आप स्वयं लिख सकते हैं..." : "Your spoken words will appear here, or you can type directly...";
     }
 
     // Natural Language Parse Handler

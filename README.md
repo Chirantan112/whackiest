@@ -19,7 +19,7 @@ Simultaneously, small employers, homeowners, and local contractors face recurrin
 
 ## 2. Proposed Solution
 
-**TASKORA** is a voice-first, hyper-local job matching platform connecting informal workers with local employers through natural voice and text interactions in **English and Hindi**.
+**TASKORA** is a voice-first, hyper-local job matching platform connecting informal workers with local employers through natural voice and text interactions in **English, Hindi, and Kannada**.
 
 Workers can simply press a microphone and speak:
 > *"I am an electrician looking for work near Hebbal."*
@@ -35,13 +35,13 @@ TASKORA deterministically extracts the skill, locality, pay, and duration, calcu
 
 ## 3. Key Features
 
-- **Voice-First Input:** Web Speech API integration in browser with bilingual speech recognition (English & Hindi) and editable transcript fallback.
+- **Voice-First Input:** Web Speech API integration in browser with speech recognition in English, Hindi, and Kannada and editable transcript fallback.
 - **Deterministic Natural Language Extraction:** Zero-cost, fast extraction of trade skills, Bengaluru localities, pay amounts, and duration without black-box LLM dependencies.
 - **Hyper-Local Matching:** Exact skill matching coupled with the Haversine great-circle distance algorithm within a configurable search radius (default: 10–15 km).
 - **Multi-Factor Transparent Scoring:** Weighted formula accounting for skill match, physical proximity, job recency, and daily pay.
 - **Community Safety & Reporting:** Instant one-click reporting mechanism that automatically flags and hides listings with 3 or more reports.
 - **Text-to-Speech (TTS) with Fallback:** Audio job summaries powered by the ElevenLabs API with disk caching, seamlessly falling back to browser `speechSynthesis` if API keys are absent.
-- **Accessible, Mobile-First Design:** High-contrast buttons, large touch targets, bilingual interface, and zero frontend framework build dependencies.
+- **Accessible, Mobile-First Design:** High-contrast buttons, large touch targets, English, Hindi, and Kannada interface, and zero frontend framework build dependencies.
 
 ---
 
@@ -66,7 +66,7 @@ TASKORA deterministically extracts the skill, locality, pay, and duration, calcu
         │
         ▼
 [ Web Frontend (HTML5/CSS3/Vanilla JS) ]
-   ├── Web Speech Recognition (en-IN, hi-IN)
+   ├── Web Speech Recognition (en-IN, hi-IN, kn-IN)
    ├── Responsive Job Cards & Audio Player
    └── Web SpeechSynthesis Fallback
         │
@@ -300,7 +300,7 @@ taskora/
 
 - **Approximate Locality Coordinates:** Center coordinates are demonstration coordinates for Bengaluru localities, not precise real-time GPS tracking.
 - **Demo Data Disclaimer:** Seed listings are demonstration data. Employer identity and criminal background verification are not implemented yet.
-- **Language Scope:** Currently optimized for English and Hindi. Regional Karnataka languages (Kannada) are planned for the next release.
+- **Language Scope:** Currently optimized for English, Hindi, and Kannada. Speech recognition and text parsing support Kannada; availability of Kannada speech recognition and speech voices depends on the browser and device.
 
 ---
 
@@ -309,7 +309,7 @@ taskora/
 1. **OTP-Verified Employers:** Phone verification via SMS OTP to prevent fraudulent job postings.
 2. **WhatsApp Integration:** Direct job alerts and voice note submissions via the WhatsApp Business API.
 3. **Missed-Call & IVR Support:** Interactive voice response (IVR) phone hotline for workers with basic feature phones (no smartphone required).
-4. **Kannada & Regional Languages:** Native Kannada voice recognition and localization for Karnataka workers.
+4. **Additional Indian Languages:** Extend voice recognition and localized parsing to more regional languages.
 5. **Worker Profiles & Peer Ratings:** Community badges and verified job completion history.
 6. **Geohash Proximity Matching:** Ultra-fast sub-kilometer clustering using geohashes.
 

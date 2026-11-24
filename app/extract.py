@@ -1,7 +1,7 @@
 """
 TASKORA - Natural Language Extraction Module
 Extracts skill, area, pay amount, and duration deterministically from text.
-Supports English, Devanagari Hindi, and Romanized Hindi.
+Supports English, Devanagari Hindi, Romanized Hindi, and Kannada.
 Does not guess or use expensive external LLM APIs, keeping it beginner-friendly, fast, and transparent.
 """
 
@@ -9,48 +9,48 @@ import re
 from typing import Any, Dict, List, Optional
 from app.db import load_areas
 
-# Skill keywords mapping canonical skill to aliases (English, Romanized Hindi, Devanagari Hindi)
+# Skill keywords mapping canonical skill to aliases (English, Hindi, Romanized Hindi, and Kannada)
 SKILL_DICTIONARY: Dict[str, List[str]] = {
     "Electrician": [
         "electrician", "bijli wala", "bijli", "bijli mistri", "bijli mistry",
         "बिजली वाला", "बिजली मिस्त्री", "बिजली", "इलेक्ट्रीशियन", "इलेक्ट्रिशियन",
-        "electric work", "wiring"
+        "electric work", "wiring", "ವಿದ್ಯುತ್ ಕೆಲಸ", "ಎಲೆಕ್ಟ್ರಿಷಿಯನ್", "ವೈರಿಂಗ್"
     ],
     "Plumber": [
         "plumber", "nal wala", "nal mistri", "nal mistry", "pipe fitter",
-        "नल वाला", "नल मिस्त्री", "प्लम्बर", "प्लंबर", "नल", "leakage"
+        "नल वाला", "नल मिस्त्री", "प्लम्बर", "प्लंबर", "नल", "leakage", "ಕೊಳಾಯಿ ಕೆಲಸ", "ಪ್ಲಂಬರ್", "ನಳ ಕೆಲಸ"
     ],
     "Painter": [
         "painter", "rang wala", "rang mistri", "putty wala", "wall painter",
-        "पेंटर", "रंग वाला", "रंग मिस्त्री", "पुट्टी", "रंगाई"
+        "पेंटर", "रंग वाला", "रंग मिस्त्री", "पुट्टी", "रंगाई", "ಬಣ್ಣದ ಕೆಲಸ", "ಪೇಂಟರ್", "ಬಣ್ಣ ಹಚ್ಚುವವರು"
     ],
     "Carpenter": [
         "carpenter", "badhai", "badhi", "lakdi wala", "furniture maker",
-        "बढ़ई", "बढई", "कारपेंटर", "लकड़ी वाला", "फर्नीचर"
+        "बढ़ई", "बढई", "कारपेंटर", "लकड़ी वाला", "ಫರ್ನಿಚರ್", "ಮರಗೆಲಸ", "ಬಡಗಿ", "ಫರ್ನಿಚರ್"
     ],
     "Mason": [
         "mason", "raj mistri", "raj mistry", "rajgeer", "masonry", "bricklayer",
-        "राज मिस्त्री", "राजमिस्त्री", "राजगीर", "मिस्त्री", "राज मिस्त्री"
+        "राज मिस्त्री", "राजमिस्त्री", "राजगीर", "मिस्त्री", "राज मिस्त्री", "ಕಟ್ಟಡ ಕೆಲಸ", "ಮೇಸ್ತ್ರಿ", "ರಾಜಮೇಸ್ತ್ರಿ"
     ],
     "Driver": [
         "driver", "gadi chalak", "chalak", "cab driver", "auto driver", "car driver",
-        "ड्राइवर", "चालक", "गाड़ी चालक", "गाड़ी चालक", "ड्राइविंग"
+        "ड्राइवर", "चालक", "गाड़ी चालक", "गाड़ी चालक", "ड्राइविंग", "ಚಾಲಕ", "ಡ್ರೈವರ್", "ಗಾಡಿ ಚಾಲಕ"
     ],
     "Cook": [
         "cook", "rasoiya", "khana banane wala", "khana banane wali", "chef", "bavarchi",
-        "रसोइया", "रसोईया", "खाना बनाने वाला", "खाना बनाने वाली", "कुक", "बावर्ची"
+        "रसोइया", "रसोईया", "खाना बनाने वाला", "खाना बनाने वाली", "कुक", "ಬಾಣಸಿಗ", "ಅಡುಗೆ ಕೆಲಸ", "ಅಡುಗೆಯವರು", "ಕುಕ್"
     ],
     "Cleaner": [
         "cleaner", "safai karmi", "safai wala", "safai wali", "sweeper", "housekeeping",
-        "सफाई वाला", "सफाई वाली", "सफाई कर्मी", "सफाई", "क्लीनर", "झाड़ू पोछा"
+        "सफाई वाला", "सफाई वाली", "सफाई कर्मी", "सफाई", "क्लीनर", "झाड़ू पोछा", "ಸ್ವಚ್ಛತಾ ಕೆಲಸ", "ಕ್ಲೀನರ್", "ಸಫಾಯಿ ಕೆಲಸ"
     ],
     "Helper": [
         "helper", "madadgar", "labour", "mazdoor", "loading", "unloading", "peon",
-        "हेल्पर", "मददगार", "मजदूर", "मज़दूर", "लेबर", "कुली"
+        "हेल्पर", "मददगार", "मजदूर", "मज़दूर", "लेबर", "ಕೂಲಿ", "ಸಹಾಯಕ", "ಕೆಲಸದ ಸಹಾಯಕ", "ಹೆಲ್ಪರ್"
     ],
     "Security Guard": [
         "security guard", "guard", "chowkidar", "chaukidar", "watchman",
-        "सिक्योरिटी गार्ड", "गार्ड", "चौकीदार", "सुरक्षा गार्ड", "वाचमैन"
+        "सिक्योरिटी गार्ड", "गार्ड", "चौकीदार", "सुरक्षा गार्ड", "ವಾಚಮನ್", "ಕಾವಲುಗಾರ", "ಭದ್ರತಾ ಸಿಬ್ಬಂದಿ", "ಸೆಕ್ಯೂರಿಟಿ ಗಾರ್ಡ್"
     ]
 }
 
@@ -64,7 +64,7 @@ def normalize_text(text: str) -> str:
 
 def extract_skill(text: str) -> Optional[str]:
     """
-    Finds matching skill from English, Devanagari, or Romanized Hindi keywords.
+    Finds matching skill from English, Hindi, Romanized Hindi, or Kannada keywords.
     Prioritizes longer keyword matches to avoid substring overlaps.
     """
     clean_input = normalize_text(text)
@@ -134,9 +134,9 @@ def extract_pay(text: str) -> Optional[float]:
     # Patterns matching currency prefix or suffix
     patterns = [
         # ₹ 800 or Rs. 800 or Rs 800 or INR 800
-        r'(?:₹|rs\.?|inr)\s*([0-9]+(?:\.[0-9]+)?)',
+        r'(?:₹|rs\.?|inr|ರೂ)\s*([0-9]+(?:\.[0-9]+)?)',
         # 800 rupees / 800 rupaye / 800 rs
-        r'([0-9]+(?:\.[0-9]+)?)\s*(?:rupees|rupaye|rupayee|rs|₹|/-)',
+        r'([0-9]+(?:\.[0-9]+)?)\s*(?:rupees|rupaye|rupayee|rs|₹|/-|ರೂಪಾಯಿ|ರೂಪಾಯಿಗಳು|ರೂ)',
         # pay 800 / payment 800 / salary 800 / dega 800
         r'(?:pay|payment|rate|salary|dega|milenge)\s*(?:is|of|:)?\s*([0-9]+(?:\.[0-9]+)?)',
         # 800 per day / 800 daily / 800 roj ka
@@ -164,7 +164,7 @@ def extract_duration(text: str) -> Optional[str]:
     clean_input = normalize_text(text)
 
     # Number + unit (days, weeks, months, hours, din, hafte, mahine)
-    pattern = r'(\b\d+\s*(?:days?|weeks?|months?|hours?|hrs?|din|hafte|mahine)\b)'
+    pattern = r'(\b\d+\s*(?:days?|weeks?|months?|hours?|hrs?|din|hafte|mahine)\b|\d+\s*(?:ದಿನ|ದಿನಗಳು|ವಾರ|ವಾರಗಳು|ತಿಂಗಳು|ತಿಂಗಳುಗಳು|ಗಂಟೆ))'
     match = re.search(pattern, clean_input, re.IGNORECASE)
     if match:
         dur = match.group(1)
@@ -172,6 +172,10 @@ def extract_duration(text: str) -> Optional[str]:
         dur = re.sub(r'\bdin\b', 'days', dur)
         dur = re.sub(r'\bhafte\b', 'weeks', dur)
         dur = re.sub(r'\bmahine\b', 'months', dur)
+        dur = re.sub(r'ದಿನಗಳು?', 'days', dur)
+        dur = re.sub(r'ವಾರಗಳು?', 'weeks', dur)
+        dur = re.sub(r'ತಿಂಗಳುಗಳು?', 'months', dur)
+        dur = re.sub(r'ಗಂಟೆ', 'hours', dur)
         return dur
 
     # Single words
