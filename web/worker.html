@@ -122,21 +122,7 @@
 
     // Mic click handler
     micBtn.addEventListener("click", () => {
-      if (!recognition) {
-        TASKORA.showToast("Speech recognition not supported in this browser. Please type below.");
-        return;
-      }
-      if (TASKORA.state.isListening) {
-        recognition.stop();
-        return;
-      }
-      try {
-        recognition.lang = TASKORA.getSpeechLocale(TASKORA.state.language);
-        recognition.start();
-      } catch (err) {
-        console.error("Could not start speech recognition:", err);
-        TASKORA.showToast(TASKORA.TRANSLATIONS[TASKORA.state.language].micGeneric);
-      }
+      TASKORA.startSpeechRecognition(recognition);
     });
 
     // Language toggle handler
