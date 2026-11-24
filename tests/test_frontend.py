@@ -30,7 +30,7 @@ def test_worker_page():
     assert "TASKORA" in html
     assert "micBtn" in html
     assert 'data-lang="kn"' in html
-    assert "getSpeechLocale(TASKORA.state.language)" in html
+    assert "startSpeechRecognition(" in html
     assert "transcriptInput" in html
     assert "searchBtn" in html
     assert "jobsList" in html
@@ -45,7 +45,7 @@ def test_employer_page():
     assert "TASKORA" in html
     assert "empMicBtn" in html
     assert 'data-lang="kn"' in html
-    assert "getSpeechLocale(TASKORA.state.language)" in html
+    assert "startSpeechRecognition(" in html
     assert "empTranscript" in html
     assert "jobPostForm" in html
     assert "formSkill" in html
