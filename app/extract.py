@@ -134,9 +134,9 @@ def extract_pay(text: str) -> Optional[float]:
     # Patterns matching currency prefix or suffix
     patterns = [
         # ₹ 800 or Rs. 800 or Rs 800 or INR 800
-        r'(?:₹|rs\.?|inr)\s*([0-9]+(?:\.[0-9]+)?)',
+        r'(?:₹|rs\.?|inr|ರೂ)\s*([0-9]+(?:\.[0-9]+)?)',
         # 800 rupees / 800 rupaye / 800 rs
-        r'([0-9]+(?:\.[0-9]+)?)\s*(?:rupees|rupaye|rupayee|rs|₹|/-)',
+        r'([0-9]+(?:\.[0-9]+)?)\s*(?:rupees|rupaye|rupayee|rs|₹|/-|ರೂಪಾಯಿ|ರೂಪಾಯಿಗಳು|ರೂ)',
         # pay 800 / payment 800 / salary 800 / dega 800
         r'(?:pay|payment|rate|salary|dega|milenge)\s*(?:is|of|:)?\s*([0-9]+(?:\.[0-9]+)?)',
         # 800 per day / 800 daily / 800 roj ka
