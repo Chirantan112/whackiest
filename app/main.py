@@ -105,7 +105,12 @@ async def read_landing():
     return FileResponse(index_path)
 
 
-@app.get("/auth", response_class=FileResponse, tags=["Frontend"])\nasync def read_auth_page():\n    return FileResponse(WEB_DIR / "auth.html")\n\n\n@app.get("/worker", response_class=FileResponse, tags=["Frontend"])
+@app.get("/auth", response_class=FileResponse, tags=["Frontend"])
+async def read_auth_page():
+    return FileResponse(WEB_DIR / "auth.html")
+
+
+@app.get("/worker", response_class=FileResponse, tags=["Frontend"])
 async def read_worker_page():
     page_path = WEB_DIR / "worker.html"
     if not page_path.exists():
