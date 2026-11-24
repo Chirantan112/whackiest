@@ -191,3 +191,37 @@ def test_tts_fallback_endpoint():
     # In test environment without valid ELEVENLABS_API_KEY, fallback must be True
     assert data["fallback"] is True
     assert data["audio_url"] is None
+
+
+def test_signup_and_login_password_auth():
+    email = "plain_auth_test@example.com"
+    signup_response = client.post("/api/auth/signup", json={
+        "email": email, "password": "correct-horse-battery",
+        "display_name": "Plain Auth", "role": "worker"
+    })
+    assert signup_response.status_code == 200
+    assert signup_response.json()["user"]["role"] == "worker"
+    assert "taskora_session" in signup_response.cookies
+
+    duplicate = client.post("/api/auth/signup", json={
+        "email": email, "password": "another-password",
+        "display_name": "Duplicate", "role": "worker"
+    })
+    assert duplicate.status_code == 409
+
+    bad_login = client.post("/api/auth/login", json={
+        "email": email, "password": "incorrect-password"
+    })
+    assert bad_login.status_code == 401
+
+    good_login = client.post("/api/auth/login", json={
+        "email": email, "password": "correct-horse-battery"
+    })
+    assert good_login.status_code == 200
+    assert good_login.json()["user"]["email"] == email
+
+    short_password = client.post("/api/auth/signup", json={
+        "email": "short_password@example.com", "password": "123",
+        "display_name": "Short Password", "role": "worker"
+    })
+    assert short_password.status_code == 422
