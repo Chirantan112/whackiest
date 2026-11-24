@@ -9,6 +9,7 @@ const state = {
   language: "en", // "en", "hi", or "kn"
   recognition: null,
   isListening: false,
+  isStarting: false,
   areas: [],
   skills: [],
   currentMatches: []
@@ -32,7 +33,8 @@ const TRANSLATIONS = {
     micPermission: "Allow microphone access in your browser, then try again.",
     micNetwork: "Speech service is unavailable. Check your internet connection.",
     micBusy: "Microphone is already active. Please wait a moment.",
-    micGeneric: "Could not start the microphone. Please type your request."
+    micGeneric: "Could not start the microphone. Please type your request.",
+    micInsecure: "Microphone access requires HTTPS or localhost. Open the app on a secure connection."
   },
   hi: {
     tagline: "अपना हुनर बोलें। पास में काम पाएं।",
@@ -50,7 +52,8 @@ const TRANSLATIONS = {
     micPermission: "ब्राउज़र में माइक्रोफ़ोन की अनुमति दें और फिर कोशिश करें।",
     micNetwork: "आवाज़ सेवा उपलब्ध नहीं है। इंटरनेट कनेक्शन जाँचें।",
     micBusy: "माइक्रोफ़ोन पहले से सक्रिय है। कृपया प्रतीक्षा करें।",
-    micGeneric: "माइक्रोफ़ोन शुरू नहीं हो सका। कृपया लिखें।"
+    micGeneric: "माइक्रोफ़ोन शुरू नहीं हो सका। कृपया लिखें।",
+    micInsecure: "माइक्रोफ़ोन के लिए HTTPS या localhost ज़रूरी है। सुरक्षित कनेक्शन से खोलें।"
   },
   kn: {
     tagline: "ನಿಮ್ಮ ಕೌಶಲ್ಯ ಹೇಳಿ. ಹತ್ತಿರದಲ್ಲೇ ಕೆಲಸ ಹುಡುಕಿ.",
@@ -68,7 +71,8 @@ const TRANSLATIONS = {
     micPermission: "ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಮೈಕ್ರೊಫೋನ್ ಅನುಮತಿಸಿ, ನಂತರ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.",
     micNetwork: "ಧ್ವನಿ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲ. ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಪರಿಶೀಲಿಸಿ.",
     micBusy: "ಮೈಕ್ರೊಫೋನ್ ಈಗಾಗಲೇ ಸಕ್ರಿಯವಾಗಿದೆ. ಸ್ವಲ್ಪ ಕಾಯಿರಿ.",
-    micGeneric: "ಮೈಕ್ರೊಫೋನ್ ಪ್ರಾರಂಭಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಟೈಪ್ ಮಾಡಿ."
+    micGeneric: "ಮೈಕ್ರೊಫೋನ್ ಪ್ರಾರಂಭಿಸಲಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಟೈಪ್ ಮಾಡಿ.",
+    micInsecure: "ಮೈಕ್ರೊಫೋನ್ ಬಳಸಲು HTTPS ಅಥವಾ localhost ಅಗತ್ಯವಿದೆ. ಸುರಕ್ಷಿತ ಸಂಪರ್ಕದಲ್ಲಿ ತೆರೆಯಿರಿ."
   }
 };
 
@@ -86,32 +90,65 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
   recognition.lang = getSpeechLocale(state.language);
 
   state.recognition = recognition;
+  let lastErrorMessage = "";
 
   recognition.onstart = () => {
+    state.isStarting = false;
     state.isListening = true;
+    lastErrorMessage = "";
     if (statusCallback) statusCallback(TRANSLATIONS[state.language].micListening, true);
   };
 
   recognition.onresult = (event) => {
-    let transcript = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
-      transcript += event.results[i][0].transcript;
-    }
+    const transcript = Array.from(event.results)
+      .map(result => result[0].transcript)
+      .join(" ")
+      .trim();
     if (transcriptCallback) transcriptCallback(transcript);
   };
 
   recognition.onerror = (event) => {
+    state.isStarting = false;
     state.isListening = false;
     const key = event.error === "not-allowed" || event.error === "service-not-allowed" ? "micPermission" : event.error === "network" ? "micNetwork" : event.error === "audio-capture" ? "micPermission" : "micError";
-    if (statusCallback) statusCallback(TRANSLATIONS[state.language][key] || TRANSLATIONS[state.language].micError, false);
+    lastErrorMessage = TRANSLATIONS[state.language][key] || TRANSLATIONS[state.language].micError;
+    if (statusCallback) statusCallback(lastErrorMessage, false);
   };
 
   recognition.onend = () => {
+    state.isStarting = false;
     state.isListening = false;
-    if (statusCallback) statusCallback(TRANSLATIONS[state.language].micIdle, false);
+    if (statusCallback) statusCallback(lastErrorMessage || TRANSLATIONS[state.language].micIdle, false);
   };
 
   return recognition;
+}
+
+// Start/stop recognition from a direct microphone-button interaction.
+function startSpeechRecognition(recognition) {
+  if (!recognition) {
+    showToast(TRANSLATIONS[state.language].micNotSupported);
+    return;
+  }
+  if (!window.isSecureContext && !["localhost", "127.0.0.1"].includes(window.location.hostname)) {
+    showToast(TRANSLATIONS[state.language].micInsecure);
+    return;
+  }
+  if (state.isListening) {
+    recognition.stop();
+    return;
+  }
+  if (state.isStarting) return;
+
+  try {
+    recognition.lang = getSpeechLocale(state.language);
+    state.isStarting = true;
+    recognition.start();
+  } catch (error) {
+    state.isStarting = false;
+    console.error("Speech recognition could not start:", error);
+    showToast(TRANSLATIONS[state.language].micGeneric);
+  }
 }
 
 // Map the selected UI language to the browser's speech recognition locale.
@@ -246,6 +283,7 @@ window.TASKORA = {
   state,
   TRANSLATIONS,
   initSpeechRecognition,
+  startSpeechRecognition,
   getSpeechLocale,
   setLanguage,
   speakText,
