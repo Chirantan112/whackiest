@@ -23,12 +23,12 @@ DEFAULT_VOICE_ID = "21m00Tcm4TlvDq8ikWAM"  # Rachel (calm, clear voice)
 DEFAULT_MODEL_ID = "eleven_multilingual_v2"
 
 
-def get_audio_hash(text: str, voice_id: str, model_id: str) -> str:
+def get_audio_hash(text: str, voice_id: str, model_id: str, language: str = "en") -> str:
     """
     Computes a deterministic SHA-256 hash of the text, voice, and model
     to serve as the cache filename.
     """
-    key_str = f"{text.strip()}:{voice_id}:{model_id}"
+    key_str = f"{text.strip()}:{voice_id}:{model_id}:{language.strip().lower()}"
     return hashlib.sha256(key_str.encode("utf-8")).hexdigest()
 
 
@@ -58,7 +58,7 @@ def generate_speech(
     active_model_id = model_id or os.getenv("ELEVENLABS_MODEL_ID", DEFAULT_MODEL_ID)
 
     # Check cache first
-    cache_hash = get_audio_hash(clean_text, active_voice_id, active_model_id)
+    cache_hash = get_audio_hash(clean_text, active_voice_id, active_model_id, language=language)
     cache_file = AUDIO_CACHE_DIR / f"{cache_hash}.mp3"
 
     if cache_file.exists() and cache_file.stat().st_size > 0:
