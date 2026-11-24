@@ -85,7 +85,9 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
   recognition.interimResults = true;
   recognition.lang = getSpeechLocale(state.language);
 
-  state.recognition = recognition;\n\n  recognition.onstart = () => {
+  state.recognition = recognition;
+
+  recognition.onstart = () => {
     state.isListening = true;
     if (statusCallback) statusCallback(TRANSLATIONS[state.language].micListening, true);
   };
@@ -100,7 +102,8 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
 
   recognition.onerror = (event) => {
     state.isListening = false;
-    const key = event.error === "not-allowed" || event.error === "service-not-allowed" ? "micPermission" : event.error === "network" ? "micNetwork" : event.error === "audio-capture" ? "micPermission" : "micError";\n    if (statusCallback) statusCallback(TRANSLATIONS[state.language][key] || TRANSLATIONS[state.language].micError, false);
+    const key = event.error === "not-allowed" || event.error === "service-not-allowed" ? "micPermission" : event.error === "network" ? "micNetwork" : event.error === "audio-capture" ? "micPermission" : "micError";
+    if (statusCallback) statusCallback(TRANSLATIONS[state.language][key] || TRANSLATIONS[state.language].micError, false);
   };
 
   recognition.onend = () => {
@@ -113,7 +116,8 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
 
 // Language Switcher
 function setLanguage(lang) {
-  state.language = lang;\n  document.documentElement.lang = lang;
+  state.language = lang;
+  document.documentElement.lang = lang;
   document.querySelectorAll(".lang-btn").forEach(btn => {
     btn.classList.toggle("active", btn.dataset.lang === lang);
   });
@@ -127,7 +131,11 @@ function setLanguage(lang) {
   });
 
   if (state.recognition) {
-    try {\n      state.recognition.lang = getSpeechLocale(lang);\n    } catch (error) {\n      console.warn("Could not update speech language", error);\n    }
+    try {
+      state.recognition.lang = getSpeechLocale(lang);
+    } catch (error) {
+      console.warn("Could not update speech language", error);
+    }
   }
 }
 
@@ -159,7 +167,7 @@ async function speakText(text, customLang) {
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = lang === "hi" ? "hi-IN" : "en-IN";
+    utterance.lang = getSpeechLocale(lang);
     utterance.rate = 0.95;
     window.speechSynthesis.speak(utterance);
   } else {
