@@ -1,6 +1,6 @@
 """
 Unit tests for TASKORA Natural Language Extraction Module (app/extract.py)
-Covers English, Hindi, Romanized Hindi, area, pay, duration, and missing fields handling.
+Covers English, Hindi, Romanized Hindi, Kannada, area, pay, duration, and missing fields handling.
 """
 
 import pytest
@@ -42,6 +42,22 @@ def test_romanized_hindi_skill_extraction():
     assert extract_skill("rasoiya chahiye lunch banane ke liye") == "Cook"
     assert extract_skill("safai wala chahiye ghar ke liye") == "Cleaner"
     assert extract_skill("chowkidar chahiye layout ke liye") == "Security Guard"
+
+
+def test_kannada_skill_area_pay_and_duration_extraction():
+    """Test Kannada speech/text vocabulary, Bengaluru localities, pay, and duration."""
+    assert extract_skill("ನನಗೆ ಎಲೆಕ್ಟ್ರಿಷಿಯನ್ ಕೆಲಸ ಬೇಕು") == "Electrician"
+    assert extract_skill("ಪ್ಲಂಬರ್ ಕೆಲಸಕ್ಕೆ ಜನ ಬೇಕು") == "Plumber"
+    assert extract_skill("ಮನೆಗೆ ಬಣ್ಣ ಹಚ್ಚುವ ಪೇಂಟರ್ ಬೇಕು") == "Painter"
+    assert extract_skill("ಮರಗೆಲಸಕ್ಕೆ ಬಡಗಿ ಬೇಕು") == "Carpenter"
+    assert extract_skill("ಕಟ್ಟಡ ಕೆಲಸಕ್ಕೆ ಮೇಸ್ತ್ರಿ ಬೇಕು") == "Mason"
+    assert extract_skill("ಅಡುಗೆ ಕೆಲಸಕ್ಕೆ ಬಾಣಸಿಗ ಬೇಕು") == "Cook"
+    assert extract_skill("ಸ್ವಚ್ಛತಾ ಕೆಲಸಕ್ಕೆ ಕೆಲಸಗಾರ ಬೇಕು") == "Cleaner"
+    assert extract_skill("ಕಾವಲುಗಾರ ಬೇಕು") == "Security Guard"
+    assert extract_area("ನನಗೆ ಹೆಬ್ಬಾಳದಲ್ಲಿ ಕೆಲಸ ಬೇಕು") == "Hebbal"
+    assert extract_area("ಕೋರಮಂಗಲದಲ್ಲಿ ಪ್ಲಂಬರ್ ಬೇಕು") == "Koramangala"
+    assert extract_pay("ದಿನಕ್ಕೆ 800 ರೂಪಾಯಿ ಕೊಡುತ್ತೇನೆ") == 800.0
+    assert extract_duration("ಕೆಲಸ 3 ದಿನಗಳು ಇರುತ್ತದೆ") == "3 days"
 
 
 def test_area_extraction():
