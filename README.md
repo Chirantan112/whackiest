@@ -35,13 +35,13 @@ TASKORA deterministically extracts the skill, locality, pay, and duration, calcu
 
 ## 3. Key Features
 
-- **Voice-First Input:** Web Speech API integration in browser with bilingual speech recognition (English, Hindi, and Kannada) and editable transcript fallback.
+- **Voice-First Input:** Web Speech API integration in browser with speech recognition in English, Hindi, and Kannada and editable transcript fallback.
 - **Deterministic Natural Language Extraction:** Zero-cost, fast extraction of trade skills, Bengaluru localities, pay amounts, and duration without black-box LLM dependencies.
 - **Hyper-Local Matching:** Exact skill matching coupled with the Haversine great-circle distance algorithm within a configurable search radius (default: 10–15 km).
 - **Multi-Factor Transparent Scoring:** Weighted formula accounting for skill match, physical proximity, job recency, and daily pay.
 - **Community Safety & Reporting:** Instant one-click reporting mechanism that automatically flags and hides listings with 3 or more reports.
 - **Text-to-Speech (TTS) with Fallback:** Audio job summaries powered by the ElevenLabs API with disk caching, seamlessly falling back to browser `speechSynthesis` if API keys are absent.
-- **Accessible, Mobile-First Design:** High-contrast buttons, large touch targets, bilingual interface, and zero frontend framework build dependencies.
+- **Accessible, Mobile-First Design:** High-contrast buttons, large touch targets, English, Hindi, and Kannada interface, and zero frontend framework build dependencies.
 
 ---
 
@@ -249,7 +249,7 @@ Run the full pytest suite:
 pytest tests -v
 ```
 All 31 unit and integration tests pass:
-- `tests/test_extract.py`: English, Devanagari Hindi, Romanized Hindi, area, pay, duration, and missing fields.
+- `tests/test_extract.py`: English, Devanagari Hindi, Romanized Hindi, Kannada, area, pay, duration, and missing fields.
 - `tests/test_matcher.py`: Haversine calculation, proximity ranking, pay fit, closed and reported jobs exclusion.
 - `tests/test_api.py`: FastAPI routes, validation, search, report, and TTS fallback.
 - `tests/test_frontend.py`: HTML pages, status codes, branding, disclaimers, and interactive elements.
