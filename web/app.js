@@ -10,6 +10,7 @@ const state = {
   recognition: null,
   isListening: false,
   isStarting: false,
+  shouldKeepListening: false,
   areas: [],
   skills: [],
   currentMatches: []
@@ -85,12 +86,16 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
   }
 
   const recognition = new SpeechRecognition();
-  recognition.continuous = false;
+  // Keep the session alive across short pauses and expose partial words quickly.
+  recognition.continuous = true;
   recognition.interimResults = true;
+  recognition.maxAlternatives = 3;
   recognition.lang = getSpeechLocale(state.language);
 
   state.recognition = recognition;
+  let finalTranscript = "";
   let lastErrorMessage = "";
+  let restartTimer = null;
 
   recognition.onstart = () => {
     state.isStarting = false;
@@ -100,17 +105,39 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
   };
 
   recognition.onresult = (event) => {
-    const transcript = Array.from(event.results)
-      .map(result => result[0].transcript)
-      .join(" ")
-      .trim();
-    if (transcriptCallback) transcriptCallback(transcript);
+    let interimTranscript = "";
+    for (let index = event.resultIndex; index < event.results.length; index += 1) {
+      const result = event.results[index];
+      const spokenText = result[0]?.transcript?.trim();
+      if (!spokenText) continue;
+
+      if (result.isFinal) {
+        finalTranscript = [finalTranscript, spokenText].filter(Boolean).join(" ");
+      } else {
+        interimTranscript = [interimTranscript, spokenText].filter(Boolean).join(" ");
+      }
+    }
+
+    const transcript = [finalTranscript, interimTranscript].filter(Boolean).join(" ").trim();
+    if (transcriptCallback && transcript) transcriptCallback(transcript);
   };
 
   recognition.onerror = (event) => {
+    if (event.error === "no-speech") {
+      // Silence is not fatal: keep listening and let onend restart the service.
+      return;
+    }
+
     state.isStarting = false;
     state.isListening = false;
-    const key = event.error === "not-allowed" || event.error === "service-not-allowed" ? "micPermission" : event.error === "network" ? "micNetwork" : event.error === "audio-capture" ? "micPermission" : "micError";
+    state.shouldKeepListening = false;
+    const key = event.error === "not-allowed" || event.error === "service-not-allowed"
+      ? "micPermission"
+      : event.error === "network"
+        ? "micNetwork"
+        : event.error === "audio-capture"
+          ? "micPermission"
+          : "micError";
     lastErrorMessage = TRANSLATIONS[state.language][key] || TRANSLATIONS[state.language].micError;
     if (statusCallback) statusCallback(lastErrorMessage, false);
   };
@@ -118,7 +145,30 @@ function initSpeechRecognition(transcriptCallback, statusCallback) {
   recognition.onend = () => {
     state.isStarting = false;
     state.isListening = false;
-    if (statusCallback) statusCallback(lastErrorMessage || TRANSLATIONS[state.language].micIdle, false);
+
+    if (state.shouldKeepListening) {
+      // Some browsers end a recognition segment after a pause. Restart the
+      // same session so the user can speak naturally without tapping again.
+      if (restartTimer) window.clearTimeout(restartTimer);
+      restartTimer = window.setTimeout(() => {
+        if (!state.shouldKeepListening) return;
+        try {
+          state.isStarting = true;
+          recognition.start();
+        } catch (error) {
+          state.isStarting = false;
+          state.shouldKeepListening = false;
+          lastErrorMessage = TRANSLATIONS[state.language].micGeneric;
+          if (statusCallback) statusCallback(lastErrorMessage, false);
+        }
+      }, 250);
+      return;
+    }
+
+    if (restartTimer) window.clearTimeout(restartTimer);
+    if (statusCallback) {
+      statusCallback(lastErrorMessage || TRANSLATIONS[state.language].micIdle, false);
+    }
   };
 
   return recognition;
@@ -134,18 +184,26 @@ function startSpeechRecognition(recognition) {
     showToast(TRANSLATIONS[state.language].micInsecure);
     return;
   }
-  if (state.isListening) {
-    recognition.stop();
+
+  if (state.isListening || state.isStarting || state.shouldKeepListening) {
+    state.shouldKeepListening = false;
+    try {
+      recognition.stop();
+    } catch (error) {
+      state.isStarting = false;
+      state.isListening = false;
+    }
     return;
   }
-  if (state.isStarting) return;
 
   try {
     recognition.lang = getSpeechLocale(state.language);
+    state.shouldKeepListening = true;
     state.isStarting = true;
     recognition.start();
   } catch (error) {
     state.isStarting = false;
+    state.shouldKeepListening = false;
     console.error("Speech recognition could not start:", error);
     showToast(TRANSLATIONS[state.language].micGeneric);
   }
