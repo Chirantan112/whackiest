@@ -3,30 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#172554">
+  <meta name="theme-color" content="#07111c">
   <meta name="description" content="Find nearby work or trusted local workers with TASKORA. Speak in English, Hindi or Kannada.">
   <title>TASKORA — Local work. Real opportunity.</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/style.css">
-  <style>
-    .hero-kicker{display:inline-flex;align-items:center;gap:.55rem;padding:.45rem .8rem;margin-bottom:1.5rem;border:1px solid rgba(255,255,255,.22);border-radius:999px;background:rgba(255,255,255,.09);color:#ccfbf1;font-size:.76rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase}
-    .hero-kicker i{width:8px;height:8px;border-radius:50%;background:#5eead4;box-shadow:0 0 0 5px rgba(94,234,212,.14)}
-    .hero-tagline span{color:#5eead4}
-    .hero-proof{display:flex;flex-wrap:wrap;gap:1.2rem;margin-top:1.6rem;color:rgba(255,255,255,.72);font-size:.82rem;font-weight:600}
-    .hero-proof span{display:flex;align-items:center;gap:.4rem}
-    .section-heading{display:flex;justify-content:space-between;align-items:end;gap:1rem;margin:0 0 1.2rem}
-    .section-heading h2{font:700 clamp(1.5rem,3vw,2.2rem)/1.15 'Space Grotesk',sans-serif;letter-spacing:-.04em;color:#172554}
-    .section-heading p{color:#64748b;font-size:.9rem;max-width:360px}
-    .step-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1.4rem}
-    .step-card{display:flex;gap:.9rem;align-items:flex-start;padding:1rem 1.1rem;border:1px solid #e2e8f0;border-radius:17px;background:rgba(255,255,255,.72)}
-    .step-number{display:grid;place-items:center;flex:0 0 34px;height:34px;border-radius:11px;background:#e0f2fe;color:#075985;font-weight:800}
-    .step-card strong{display:block;color:#172554;font-size:.9rem}.step-card small{color:#64748b;line-height:1.5}
-    @media(max-width:700px){.step-strip{grid-template-columns:1fr}.section-heading{align-items:flex-start;flex-direction:column}}
-  </style>
 </head>
-<body>
+<body class="motion-page">
   <header class="header">
     <div class="header-container">
       <a href="/" class="brand" aria-label="TASKORA home">
@@ -38,43 +23,64 @@
           <button class="lang-btn" data-lang="hi" onclick="TASKORA.setLanguage('hi')">हिंदी</button>
           <button class="lang-btn" data-lang="kn" onclick="TASKORA.setLanguage('kn')">ಕನ್ನಡ</button>
         </div>
-        <a href="/auth" class="btn-sm" style="background:#172554;color:white;text-decoration:none;padding:.7rem 1rem;border-radius:12px">Get started ↗</a>
+        <a href="/auth" class="btn-sm nav-cta" style="text-decoration:none;padding:.72rem 1.1rem">Get started <span aria-hidden="true">↗</span></a>
       </div>
     </div>
   </header>
+
   <main class="main-content">
-    <div class="disclaimer-banner" role="status"><span>ℹ️</span><span data-i18n="demoDisclaimer">Demo data. Employer verification is not implemented yet.</span></div>
-    <section class="hero">
-      <div class="hero-kicker"><i></i> Work opportunities, closer to home</div>
-      <h1 class="hero-tagline" data-i18n="tagline">Say your skill.<br>Find work <span>nearby.</span></h1>
-      <p class="hero-subtext">A simpler way to connect local talent with local opportunity. Speak naturally or type what you need—in English, Hindi or Kannada. No complicated forms. Just meaningful connections.</p>
-      <div class="hero-actions">
-        <a href="/auth?role=worker&amp;next=%2Fworker" class="action-card worker">
-          <div class="action-icon">🛠️</div><h2 class="action-title">I’m looking for work</h2>
-          <p class="action-desc">Tell us what you do and where. Discover relevant jobs around your neighbourhood.</p>
-        </a>
-        <a href="/auth?role=employer&amp;next=%2Femployer" class="action-card employer">
-          <div class="action-icon">🤝</div><h2 class="action-title">I need a worker</h2>
-          <p class="action-desc">Describe the work, set the details and reach people with the skills you need.</p>
-        </a>
+    <div class="disclaimer-banner" role="status"><span>ⓘ</span><span data-i18n="demoDisclaimer">Demo data. Employer verification is not implemented yet.</span></div>
+
+    <section class="motion-hero" aria-labelledby="heroTitle">
+      <canvas id="ambientCanvas" aria-hidden="true"></canvas>
+      <div class="motion-copy">
+        <div class="motion-kicker">Work opportunities, closer to home</div>
+        <h1 class="motion-title" id="heroTitle">Your skills.<br>Your next <span class="highlight">opportunity.</span></h1>
+        <p class="motion-lead">A voice-first way to connect local talent with local work. Tell TASKORA what you can do—in English, Hindi or Kannada—and discover opportunities around you.</p>
+        <div class="motion-cta-row">
+          <a href="/auth?role=worker&amp;next=%2Fworker" class="motion-cta primary magnetic">Find work near me <span class="arrow" aria-hidden="true">↗</span></a>
+          <a href="/auth?role=employer&amp;next=%2Femployer" class="motion-cta secondary magnetic">Hire local talent <span class="arrow" aria-hidden="true">↗</span></a>
+        </div>
+        <div class="motion-proof">
+          <span>🎙️ <b>3 languages</b></span><span>📍 <b>Hyper-local matching</b></span><span>⚡ <b>Simple & direct</b></span>
+        </div>
       </div>
-      <div class="hero-proof"><span>🎙️ Voice-first in 3 languages</span><span>📍 Hyper-local matching</span><span>⚡ Simple and direct</span></div>
+
+      <div class="orb-stage" id="orbStage" aria-label="Animated voice technology illustration">
+        <div class="orb-halo"></div>
+        <div class="orb-float-card one"><strong><span class="tiny-dot"></span>Voice-first search</strong><small>Speak naturally, get started</small></div>
+        <div class="voice-orb"><span class="orb-core" aria-hidden="true">⌁</span><span class="orb-caption">Your voice. Your way.</span></div>
+        <div class="orb-float-card two"><strong>📍 Local opportunities</strong><small>Closer work, better connections</small></div>
+      </div>
     </section>
-    <section class="features-section">
-      <div class="section-heading"><div><p style="color:#0f8b85;font-size:.72rem;font-weight:800;letter-spacing:.16em;margin-bottom:.5rem">MADE FOR EVERYDAY WORK</p><h2>Technology that gets out of the way.</h2></div><p>Designed around how people actually look for work and hire help—not around complicated screens.</p></div>
-      <div class="features-grid">
-        <article class="feature-item"><h3 class="feature-title">🎙️ Speak naturally</h3><p class="action-desc">Voice input in English, Hindi and Kannada makes searching and posting accessible without long forms.</p></article>
-        <article class="feature-item"><h3 class="feature-title">📍 Stay close to home</h3><p class="action-desc">Location-aware matching helps surface opportunities around Bengaluru neighbourhoods.</p></article>
-        <article class="feature-item"><h3 class="feature-title">⚖️ Clear match signals</h3><p class="action-desc">Skill, distance, pay fit and recency contribute to transparent matching—not a mysterious black box.</p></article>
+
+    <section class="motion-section" aria-labelledby="howTitle">
+      <div class="motion-section-head motion-reveal">
+        <div><div class="motion-eyebrow">A better way to connect</div><h2 id="howTitle">From your words<br>to real opportunity.</h2></div>
+        <p>No complicated forms. No endless searching. Just tell us what you need and let local matching do the heavy lifting.</p>
       </div>
-      <div class="step-strip" aria-label="How TASKORA works">
-        <div class="step-card"><span class="step-number">01</span><div><strong>Say what you need</strong><small>Speak or type in the language you’re comfortable with.</small></div></div>
-        <div class="step-card"><span class="step-number">02</span><div><strong>Get a local match</strong><small>See relevant jobs or share your opening with nearby workers.</small></div></div>
-        <div class="step-card"><span class="step-number">03</span><div><strong>Connect directly</strong><small>Review the details and contact the other person.</small></div></div>
+      <div class="motion-path">
+        <article class="motion-step motion-reveal" data-delay="0"><span class="step-index">01</span><h3>Say what you need</h3><p>Speak or type in the language you’re comfortable with. TASKORA understands everyday requests.</p></article>
+        <article class="motion-step motion-reveal" data-delay="1"><span class="step-index">02</span><h3>Discover a local match</h3><p>Find relevant work or workers with useful signals like skill, locality, distance and pay.</p></article>
+        <article class="motion-step motion-reveal" data-delay="2"><span class="step-index">03</span><h3>Connect directly</h3><p>Review the details, choose what works and connect with the other person.</p></article>
+      </div>
+    </section>
+
+    <section class="motion-section" aria-labelledby="featuresTitle">
+      <div class="motion-section-head motion-reveal">
+        <div><div class="motion-eyebrow">Designed for everyday work</div><h2 id="featuresTitle">Technology that<br>moves with people.</h2></div>
+        <p>Built around real-world needs: accessible voice input, neighbourhood discovery and transparent matching.</p>
+      </div>
+      <div class="motion-feature-grid">
+        <article class="motion-feature motion-reveal"><span class="feature-glyph">◉</span><h3>Speak naturally</h3><p>Voice input in English, Hindi and Kannada helps make searching and posting more accessible.</p></article>
+        <article class="motion-feature motion-reveal" data-delay="1"><span class="feature-glyph">⌖</span><h3>Stay close</h3><p>Discover opportunities around Bengaluru localities and nearby neighbourhoods.</p></article>
+        <article class="motion-feature motion-reveal" data-delay="2"><span class="feature-glyph">✳</span><h3>Clear match signals</h3><p>Skill, distance, pay fit and recency contribute to useful, understandable matches.</p></article>
       </div>
     </section>
   </main>
-  <footer class="footer"><p><strong>TASKORA</strong> · Track 4 — UnlockED · wHACKiest 2026</p><p style="margin-top:.3rem;font-size:.8rem">Empowering informal and semi-skilled livelihoods through accessible voice technology.</p></footer>
+
+  <footer class="motion-footer"><p><strong>TASKORA</strong> · Track 4 — UnlockED · wHACKiest 2026</p><p style="margin-top:.5rem">Empowering informal and semi-skilled livelihoods through accessible voice technology.</p></footer>
   <script src="/static/app.js"></script>
+  <script src="/static/motion.js"></script>
 </body>
 </html>
