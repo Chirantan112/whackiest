@@ -64,3 +64,7 @@ def test_static_assets():
     assert "TASKORA" in js_resp.text
     assert "kn-IN" in js_resp.text
     assert "state.recognition = recognition" in js_resp.text
+    assert "recognition.continuous = true" in js_resp.text
+    assert "recognition.interimResults = true" in js_resp.text
+    assert "recognition.maxAlternatives = 3" in js_resp.text
+    assert "state.shouldKeepListening" in js_resp.text
